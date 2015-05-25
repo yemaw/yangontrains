@@ -1,0 +1,32 @@
+<ion-view>
+	<ion-header-bar>
+	  	<div class="buttons">
+	    	<button class="button icon ion-levels bar-icon-left" ng-click="actionOpenSetting()"></button>
+	  	</div>
+	  	<h1 class="title">Stations</h1>
+	  	<div class="buttons">
+		    <button class="button icon ion-map bar-icon-right" ng-click="actionOpenMap()"></button>
+	    </div>
+	</ion-header-bar>
+	<ion-content has-bouncing="false">
+		<div class="list list-inset">
+		  	<label class="item item-input">
+		    	<i class="icon ion-search placeholder-icon"></i>
+		    	<input type="text" placeholder="Search" class="searchbox" ng-model="data.search_text" ng-keyup="filterRows()">
+		  	</label>
+		</div>
+	</ion-content>
+	<ion-content class="below-searchbox">
+	    <ion-list my-touchstart="touchStartOnItem()" show-delete="false">
+			<ion-item class="item-icon-right adjust-list-item-1" collection-repeat="row in data.stations" type="item-text-wrap" href="#/yangontrains/station/{{row.id}}">
+				<h2 class="row-1">
+					{{(current_language == 'en' && row.name_en) ? row.name_en : (row.name_mm && row.name_mm)}}
+				</h2>
+				<p class="row-2">
+					{{(current_language == 'en' && row.name_mm) ? row.name_mm : (row.name_en && row.name_en)}}
+				</p>
+				<i class="icon ion-chevron-right icon-accessory"></i>
+			</ion-item>
+	    </ion-list>
+  	</ion-content>
+</ion-view>

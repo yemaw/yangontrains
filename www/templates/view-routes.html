@@ -1,0 +1,84 @@
+<ion-view>
+	<ion-header-bar>
+	  	<div class="buttons">
+	    	<button class="button icon ion-levels bar-icon-left" ng-click="actionOpenSetting()"></button>
+	  	</div>
+	  	<h1 class="title">Yangon Trains</h1>
+	  	<div class="buttons">
+		    <button class="button icon ion-map bar-icon-right" ng-click="actionOpenMap()"></button>
+	    </div>
+	</ion-header-bar>
+
+	<ion-content class="adjust-route-wrapper" has-bouncing="false">
+		<div class="list list-inset">
+			<div class="search-station-desc">Search Stations</div>
+          	<label class="item item-input">
+          		<i class="icon ion-search placeholder-icon"></i>
+            	<input type="text" 
+					placeholder="From"
+					ng-model="inputs.route_from" 
+					ng-focus="inputsGetFocus('from-textbox', 'from')" 
+					ng-blur="inputsGetBlur()" 
+					ng-keyup="actionFromTextboxKeyUp('from-textbox')" 
+					class="from-textbox" />
+          	</label>
+          	<label class="item item-input">
+          		<i class="icon ion-search placeholder-icon"></i>
+				<input type="text" 
+					placeholder="To"
+					ng-model="inputs.route_to" 
+					ng-focus="inputsGetFocus('to-textbox', 'to')" 
+					ng-blur="inputsGetBlur()" 
+					ng-keydown="actionToTextboxKeyUp('to-textbox')" 
+					class="to-textbox" />
+          	</label>
+      	</div>
+	</ion-content>
+
+	<ion-content ng-show="show_route_results" class="route-result">
+		<div class="route-title">{{result_title}}</div>
+		<ion-list>
+			<ion-item
+				item-height="100px"
+				class="item-icon-right  adjust-list-item-5"
+				collection-repeat="row in data.routes" 
+				href="#/yangontrains/route_train/{{row.id}}?from_id={{from_station.id}}&to_id{{to_station.id}}" >
+					<h2 class='row-1'>{{(current_language == 'en' && row.name_en) ? row.name_en : (row.name_mm && row.name_mm)}}</h2>
+					<p class='row-2'>
+						 • {{convertTime24to12(row.from_data.departure_time)}} 
+						 {{(current_language == 'en' && from_station.name_en) ? ' depart from '+from_station.name_en : from_station.name_mm + ' မွထြက္'}}
+						 <br />
+						 • {{convertTime24to12(row.to_data.arrival_time)}}
+						 {{(current_language == 'en' && to_station.name_en) ? ' arrive to '+to_station.name_en : to_station.name_mm + ' သို႕ေရာက္'}}
+						 <br />
+						 • {{(current_language == 'en') ? 'Travelling time ' : 'စီးနင္းခ်ိန္ '}} <span class="bold">{{row.duration}}</span>
+					</p>
+					<p class="row-3">
+						<span ng-if="row.arriveIn" class="prefix"></span>
+						{{row.arriveIn ? row.arriveIn : (current_language == 'en') ? 'Departed' : 'ထြက္ခြာျပီး'}}
+					</p>
+					<i class="icon ion-chevron-right icon-accessory"></i>
+			</ion-item>
+		</ion-list>
+  	</ion-content>
+
+	<ion-content ng-show="show_stations_autocomplete" class="stations-autocomplete-wrapper">
+		<div class="stations-autocomplete-title">Select station</div>
+		<ion-list class="stations-autocomplete">
+			<ion-item 
+				item-height="50px"
+				class="item-icon-left adjust-list-item-4"
+				collection-repeat="row in data.stations"
+				ng-click="actionStationSelected(row,'{{current_from_or_to}}')">
+				<i class="icon icon-station"></i>
+				<h2 class="row-1">
+					{{(current_language == 'en' && row.name_en) ? row.name_en : (row.name_mm && row.name_mm)}}
+				</h2>
+				<p class="row-2">
+					{{(current_language == 'en' && row.name_mm) ? row.name_mm : (row.name_en && row.name_en)}}
+				</p>
+			</ion-item>
+		</ion-list>
+  	</ion-content>
+
+</ion-view>

@@ -1,0 +1,39 @@
+<ion-view>
+    <ion-header-bar>
+        <div class="buttons">
+            <button class="button header-item icon ion-ios-arrow-back bar-icon-right" ng-click="actionGoBack()">&nbsp;Back</button>
+        </div>
+        <h1 class="title">{{display.title}}</h1>
+        <div class="buttons">
+            <button class="button icon ion-map bar-icon-right"></button>
+        </div>
+    </ion-header-bar>
+    <ion-content class="toparea">
+            <div class="name">{{display.name}}</div>
+            <div class="tagline">{{display.tagline}}</div>
+    </ion-content>
+    <ion-content class="below-toparea">
+        <ion-list>
+            <ion-item class="item-icon-right item-thumbnail-left adjust-list-item-3" collection-repeat="row in data.path" type="item-text-wrap">
+                <img ng-if="$index==0" ng-src="images/connect_top_t.imageset/connect_top_t.png" class="left-thumbnail">
+                <img ng-if="($index!=0 && $index+1!=data.path.length)" ng-src="images/connect_middle_t.imageset/connect_middle_t.png" class="left-thumbnail">
+                <img ng-if="$index+1==data.path.length" ng-src="images/connect_bottom_t.imageset/connect_bottom_t.png" class="left-thumbnail">
+                <h2 class="row-1">
+                    {{(current_language == 'en' && row.station.name_en) ? row.station.name_en : (row.station.name_mm && row.station.name_mm)}}
+                </h2>
+                <p class="row-2">
+                    <span ng-if="row.arrival_time;">
+                        {{ (current_language == 'en') ? 'arrive' : '၀င္'; }} 
+                        <b>{{convertTime24to12(row.arrival_time)}}</b>
+                    </span>
+                    <span ng-if="row.arrival_time && row.departure_time" > - </span>
+                    <span ng-if="row.departure_time">
+                        {{ (current_language == 'en') ? 'depart' : 'ထြက္'; }} 
+                        <b>{{convertTime24to12(row.departure_time)}}</b>
+                    </span>
+                </p>
+
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>
