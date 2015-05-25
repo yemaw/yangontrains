@@ -17,7 +17,7 @@
 		</div>
 	</ion-content>
 	<ion-content class="below-searchbox">
-	    <ion-list my-touchstart="touchStartOnItem()" show-delete="false">
+	    <ion-list my-touchstart="touchStartOnListView()" show-delete="false">
 			<ion-item class="item-icon-right adjust-list-item-1" collection-repeat="row in data.stations" type="item-text-wrap" href="#/yangontrains/station/{{row.id}}">
 				<h2 class="row-1">
 					{{(current_language == 'en' && row.name_en) ? row.name_en : (row.name_mm && row.name_mm)}}

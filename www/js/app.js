@@ -130,11 +130,16 @@ angular.module('yangontrains.controllers', [])
     $scope.modals = {};
     $scope.data = {};
     
-    
     $scope.data.facebook_page_link = 'https://www.facebook.com/yangonbuses';
     $scope.data.app_store_link = 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8';
     
     $rootScope.current_language = SettingPreference.get('language', 'mm');
+
+    $rootScope.touchStartOnListView = function(){
+        $('.searchbox, .from-textbox, .to-textbox').focusout();
+        $('.searchbox, .from-textbox, .to-textbox').blur();
+        //cordova.plugins.Keyboard.close();
+    };
 
     $ionicModal.fromTemplateUrl('templates/view-setting.html', {
         scope: $scope,
@@ -214,7 +219,7 @@ angular.module('yangontrains.controllers', [])
     var animate = (function(toTop, focusClassName, callback){
         var top, to_top;
         if(toTop === false){
-            top = '200px';
+            top = '180px';
             to_top = false;
         } else {
             top = '0px';
@@ -252,10 +257,12 @@ angular.module('yangontrains.controllers', [])
         if(from_or_to === 'from') {
             $scope.inputs.route_from = '';
             $scope.current_from_id = '';
+            $('.stations-autocomplete-wrapper').css({'margin-top':'63px'});
         }
         if(from_or_to === 'to') {
             $scope.inputs.route_to = '';
             $scope.current_to_id = '';
+            $('.stations-autocomplete-wrapper').css({'margin-top':'106px'});
         }
 
         $('.'+focusClassName).slideDown('slow');
@@ -289,6 +296,10 @@ angular.module('yangontrains.controllers', [])
             $scope.show_route_results = true;
         }
         $scope.safeApply();
+        /*if(typeof cordova !== 'undefined' && cordova.plugins.keyboard){
+            cordova.plugins.Keyboard.close();    
+        }*/
+        
     };
 
     $scope.actionFromTextboxKeyUp = function(focusClassName){
@@ -454,11 +465,7 @@ angular.module('yangontrains.controllers', [])
     });
 
     $scope.filterRows();
-    $scope.touchStartOnItem = function(){
-        $('.searchbox').focusout();
-        $('.searchbox').blur();
-    }
-
+    
     setTimeout(function(){
         $ionicLoading.hide();
     },1000);
@@ -491,10 +498,7 @@ angular.module('yangontrains.controllers', [])
     });
 
     $scope.filterRows();
-    $scope.touchStartOnItem = function(){
-        $('.searchbox').focusout();
-        $('.searchbox').blur();
-    }
+    
     setTimeout(function(){
         $ionicLoading.hide();
     },1000);

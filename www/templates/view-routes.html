@@ -37,7 +37,7 @@
 
 	<ion-content ng-show="show_route_results" class="route-result">
 		<div class="route-title">{{result_title}}</div>
-		<ion-list>
+		<ion-list show-delete="false">
 			<ion-item
 				item-height="100px"
 				class="item-icon-right  adjust-list-item-5"
@@ -63,8 +63,7 @@
   	</ion-content>
 
 	<ion-content ng-show="show_stations_autocomplete" class="stations-autocomplete-wrapper">
-		<div class="stations-autocomplete-title">Select station</div>
-		<ion-list class="stations-autocomplete">
+		<ion-list class="stations-autocomplete" show-delete="false">
 			<ion-item 
 				item-height="50px"
 				class="item-icon-left adjust-list-item-4"
