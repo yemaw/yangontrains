@@ -61,6 +61,8 @@ gulp.task('watchWww', function(done){
     }).on('end',done);
 });
 
+module.exports = gulp;
+
 /*
 module.exports = function(grunt) {
     

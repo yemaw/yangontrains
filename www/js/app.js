@@ -49,7 +49,7 @@ angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrai
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
-            cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+            //cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         }
         if (window.StatusBar) {
             //--StatusBar.styleLightContent();
@@ -138,7 +138,11 @@ angular.module('yangontrains.controllers', [])
     $rootScope.touchStartOnListView = function(){
         $('.searchbox, .from-textbox, .to-textbox').focusout();
         $('.searchbox, .from-textbox, .to-textbox').blur();
-        //cordova.plugins.Keyboard.close();
+
+        if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
+            cordova.plugins.Keyboard.close();    
+        }
+        
     };
 
     $ionicModal.fromTemplateUrl('templates/view-setting.html', {
@@ -215,7 +219,7 @@ angular.module('yangontrains.controllers', [])
 .controller('RoutesController', function($scope, $rootScope, JSONDB, $ionicLoading, SettingPreference) {
     $ionicLoading.show();
     $scope.at_top = false;
-    $scope.inputs = {route_from:'',route_to:''};
+    $scope.inputs = {route_from:'',route_to:'',show_all_route:true};
     var animate = (function(toTop, focusClassName, callback){
         var top, to_top;
         if(toTop === false){
@@ -295,10 +299,12 @@ angular.module('yangontrains.controllers', [])
         if($scope.current_from_id && $scope.current_to_id){
             $scope.show_route_results = true;
         }
+        
         $scope.safeApply();
-        /*if(typeof cordova !== 'undefined' && cordova.plugins.keyboard){
+
+        if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
             cordova.plugins.Keyboard.close();    
-        }*/
+        }
         
     };
 
@@ -329,12 +335,30 @@ angular.module('yangontrains.controllers', [])
             $scope.show_route_results = true;
             searchRoute();
         }
-
+        
         $scope.safeApply();
+
+        if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
+            cordova.plugins.Keyboard.close();    
+        }
     };
 
 
     var searchRoute = (function(){
+        var pathOrderSorter = function(a,b){
+            a = a.path_order;
+            b = b.path_order;
+            
+            if (parseInt(a) < parseInt(b)){
+                return -1;
+            }
+            else if (parseInt(a) > parseInt(b)){
+                return 1;
+            } else {
+                return 0;    
+            }
+        };
+
         $ionicLoading.show();
 
         var from_id = $scope.current_from_id;
@@ -375,15 +399,20 @@ angular.module('yangontrains.controllers', [])
                 {
                     var train = JSONDB.GetRowByID('trains',fp.train_id);
                     var paths = JSONDB.GetRowsExact('paths', train.id,['train_id']);
+                    paths = paths.sort(pathOrderSorter);//just make sure path is in order
+                    
                     var l3 = paths.length;
                     var found_from = false, found_to = false;
                     for(var k=0; k<l3;k++){
                         var path = paths[k];
-                        if(parseInt(from_id) === parseInt(path.station_id) && found_from === false){
+                        if(parseInt(from_id) === parseInt(path.station_id) && found_from === false && found_to === false){
                             found_from = true;
                             train.from_data = path;
                         }
-                        if(parseInt(to_id) === parseInt(path.station_id) && found_to === false){
+                        if(parseInt(to_id) === parseInt(path.station_id) && found_to === false && found_from === true){
+                            if(path.id == '645'){
+                                console.log(path);
+                            }
                             found_to = true;
                             train.to_data = path;
                         }
@@ -412,8 +441,10 @@ angular.module('yangontrains.controllers', [])
                             var next = date1 - new Date(2000, 0, 1, now.getHours(), now.getMinutes());
                             if(next > 0){
                                 train.arriveIn = $rootScope.getHumanReadableDuration(next); 
+                                train.available = true;
                             } else {
                                 train.arriveIn = false;
+                                train.available = false;
                             }
                         }
                     }
@@ -435,6 +466,18 @@ angular.module('yangontrains.controllers', [])
         
     });
     
+    $scope.showAllRouteInputChanged = function(){
+        $scope.safeApply();
+    };
+    $scope.availablityFilter = function(row,index, rows){
+        /*console.log('row.available'+row.available);
+        console.log('$scope.inputs.show_all_route'+$scope.inputs.show_all_route);*/
+        if(row.available === false && $scope.inputs.show_all_route === false){
+            return false;
+        } else {
+            return true;
+        }
+    };
 
 
     setTimeout(function(){

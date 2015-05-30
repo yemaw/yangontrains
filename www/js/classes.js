@@ -255,6 +255,9 @@ var EnvironmentDetector = (function(){
     
     return {
         //device
+        isCordovaApp: function(){
+            return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
+        },
         deviceType: deviceType,
         isMobileApp : deviceType ? true : false,
         isWeb : deviceType ? false : true,

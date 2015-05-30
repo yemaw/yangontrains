@@ -15,7 +15,7 @@
           	<label class="item item-input">
           		<i class="icon ion-search placeholder-icon"></i>
             	<input type="text" 
-					placeholder="From"
+					placeholder="From" 
 					ng-model="inputs.route_from" 
 					ng-focus="inputsGetFocus('from-textbox', 'from')" 
 					ng-blur="inputsGetBlur()" 
@@ -34,14 +34,35 @@
           	</label>
       	</div>
 	</ion-content>
-
+	
+	<ion-content ng-show="show_route_results" class="route-header" has-bouncing="false">
+		<table>
+			<tr>
+				<td class="route-title">{{result_title}}</td>
+				<td class="adjust-toggle">
+					<table>
+						<tr>
+							<td class="showall-toggle-label">Show All</td>
+							<td>
+								<label class="toggle toggle-dark">
+							       <input type="checkbox" ng-check="inputs.show_all_route" ng-model="inputs.show_all_route" ng-change="showAllRouteInputChanged()">
+							       <div class="track">
+							    	    <div class="handle"></div>
+							       </div>
+							    </label>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</ion-content>
 	<ion-content ng-show="show_route_results" class="route-result">
-		<div class="route-title">{{result_title}}</div>
 		<ion-list show-delete="false">
 			<ion-item
 				item-height="100px"
 				class="item-icon-right  adjust-list-item-5"
-				collection-repeat="row in data.routes" 
+				collection-repeat="row in data.routes | filter:availablityFilter" 
 				href="#/yangontrains/route_train/{{row.id}}?from_id={{from_station.id}}&to_id{{to_station.id}}" >
 					<h2 class='row-1'>{{(current_language == 'en' && row.name_en) ? row.name_en : (row.name_mm && row.name_mm)}}</h2>
 					<p class='row-2'>
@@ -53,10 +74,14 @@
 						 <br />
 						 • {{(current_language == 'en') ? 'Travelling time ' : 'စီးနင္းခ်ိန္ '}} <span class="bold">{{row.duration}}</span>
 					</p>
-					<p class="row-3">
-						<span ng-if="row.arriveIn" class="prefix"></span>
-						{{row.arriveIn ? row.arriveIn : (current_language == 'en') ? 'Departed' : 'ထြက္ခြာျပီး'}}
-					</p>
+					<table class="row-3"><tr>
+						<td class="timer-icon-wrapper"><div class="timer-icon"></div></td>
+						<td class="timer-wrapper">
+							<span ng-if="row.arriveIn" class="prefix"></span>
+							{{row.arriveIn ? row.arriveIn : (current_language == 'en') ? 'Departed' : 'ထြက္ခြာျပီး'}}
+						</td>
+					</tr></table>
+
 					<i class="icon ion-chevron-right icon-accessory"></i>
 			</ion-item>
 		</ion-list>
@@ -65,6 +90,7 @@
 	<ion-content ng-show="show_stations_autocomplete" class="stations-autocomplete-wrapper">
 		<ion-list class="stations-autocomplete" show-delete="false">
 			<ion-item 
+
 				item-height="50px"
 				class="item-icon-left adjust-list-item-4"
 				collection-repeat="row in data.stations"
