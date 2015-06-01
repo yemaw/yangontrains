@@ -260,11 +260,17 @@ var EnvironmentDetector = (function(){
         },
         deviceType: deviceType,
         isMobileApp : deviceType ? true : false,
-        isWeb : deviceType ? false : true,
+        isWeb : function(){
+            return deviceType ? false : true;
+        },
         isIPhone : deviceType && deviceType.toLowerCase() === 'iphone',
         isIPad : deviceType && deviceType.toLowerCase() === 'ipad',
-        isiOS : deviceType && deviceType.toLowerCase() === 'ios',
-        isAndroid : deviceType && deviceType.toLowerCase() === 'android',
+        isIOS : function(){
+            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
+        },
+        isAndroid : function(){
+            return deviceType && deviceType.toLowerCase() === 'android';
+        },
         platformVersion: (window.device && window.device.version) ? window.device.version : null,
         model: (window.device && window.device.model) ? window.device.model : null,
     };

@@ -1,13 +1,13 @@
 <ion-view>
 	<ion-header-bar>
-	  	<div class="buttons">
-	    	<button class="button icon ion-levels bar-icon-left" ng-click="actionOpenSetting()"></button>
-	  	</div>
-	  	<h1 class="title">Yangon Trains</h1>
-	  	<div class="buttons">
-		    <button class="button icon ion-map bar-icon-right" ng-click="actionOpenMap()"></button>
-	    </div>
-	</ion-header-bar>
+      <div class="buttons">
+        <button class="button icon ion-map bar-icon-left" ng-click="actionOpenMap()"></button>
+      </div>
+      <h1 class="title">Yangon Trains</h1>
+      <div class="buttons">
+        <button class="button icon ion-levels bar-icon-right" ng-click="actionOpenSetting()"></button>
+      </div>
+  </ion-header-bar>
 
 	<ion-content class="adjust-route-wrapper" has-bouncing="false">
 		<div class="list list-inset">
@@ -42,7 +42,7 @@
 				<td class="adjust-toggle">
 					<table>
 						<tr>
-							<td class="showall-toggle-label">Show All</td>
+							<td class="showall-toggle-label">{{ (current_language == 'en') ? 'Show All' : 'Show all'}}</td>
 							<td>
 								<label class="toggle toggle-dark">
 							       <input type="checkbox" ng-check="inputs.show_all_route" ng-model="inputs.show_all_route" ng-change="showAllRouteInputChanged()">

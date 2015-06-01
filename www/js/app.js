@@ -207,7 +207,48 @@ angular.module('yangontrains.controllers', [])
     };
 
     $scope.actionOpenFacebookPage = function(){
+        if(ENV.isCordovaApp() && ENV.isAndroid()){
+            appAvailability.check(
+                'com.facebook.katana',
+                function() { 
+                    window.open('fb://page?id=807409185947603', '_system');
+                },
+                function() {
+                    window.open('https://www.facebook.com/807409185947603', '_system');
+                }
+            );
+        } else if (ENV.isCordovaApp() && ENV.isIOS()){
+            appAvailability.check(
+                'fb://',
+                function() {
+                    window.open('fb://page?id=807409185947603', '_system');
+                },
+                function() {  
+                    window.open('https://www.facebook.com/807409185947603', '_system');
+                }
+            );
+        } else {
+            window.open('https://www.facebook.com/807409185947603', '_system');
+        }
+    };
 
+    $scope.actionAppStorePage = function (){
+
+        if(ENV.isCordovaApp() && ENV.isAndroid()){
+            appAvailability.check(
+                'com.android.vending',
+                function() { 
+                    window.open('market://details?id=com.theinhtikeaung.yangonbuses', '_system');
+                },
+                function() {
+                    window.open('https://play.google.com/store/apps/details?id=com.theinhtikeaung.yangonbuses', '_system');  
+                }
+            );
+        } else if (ENV.isCordovaApp() && ENV.isIOS()){
+            window.open('https://itunes.apple.com/us/app/yangon-trains/id931205785?mt=8', '_system');//all ios have app store app. no need to check.
+        } else {
+            window.open('https://itunes.apple.com/us/app/yangon-trains/id931205785?mt=8', '_system');
+        }
     };
 
     $scope.actionSetLanguage = function(lang){
@@ -219,7 +260,7 @@ angular.module('yangontrains.controllers', [])
 .controller('RoutesController', function($scope, $rootScope, JSONDB, $ionicLoading, SettingPreference) {
     $ionicLoading.show();
     $scope.at_top = false;
-    $scope.inputs = {route_from:'',route_to:'',show_all_route:true};
+    $scope.inputs = {route_from:'',route_to:'',show_all_route:false};
     var animate = (function(toTop, focusClassName, callback){
         var top, to_top;
         if(toTop === false){
@@ -435,7 +476,7 @@ angular.module('yangontrains.controllers', [])
                             }
                             
                             train.departureTime = date1;
-
+                            train.arrivalTime   = date1;
 
                             var now = new Date();
                             var next = date1 - new Date(2000, 0, 1, now.getHours(), now.getMinutes());
@@ -453,10 +494,8 @@ angular.module('yangontrains.controllers', [])
             }
         }
 
-        trains = _.sortBy(trains, 'departureTime');
-
-        trains = _.sortBy(trains, 'diff');
-
+        trains = _.sortBy(trains, 'arrivalTime');
+        
         $scope.data.routes = trains;
         $scope.show_route_results = true;
         
@@ -519,10 +558,6 @@ angular.module('yangontrains.controllers', [])
 
     $scope.data.train = JSONDB.GetRowByID('trains', $stateParams.id);
 
-    $scope.display.title = ($rootScope.current_language == 'en' && $scope.data.train.name_en) ? $scope.data.train.name_en : ($scope.data.train.name_mm && $scope.data.train.name_mm);
-    $scope.display.name = ($rootScope.current_language == 'en' && $scope.data.train.name_en) ? $scope.data.train.name_en : ($scope.data.train.name_mm && $scope.data.train.name_mm);
-    $scope.display.tagline = 'Stations';
-    
     var path = JSONDB.GetRowsExact('paths', $stateParams.id,['train_id']);
     $scope.data.path = JSONDB.JoinExact('stations', path, 'station_id', 'station');
     
@@ -551,13 +586,25 @@ angular.module('yangontrains.controllers', [])
     $scope.display = {};    
 
     $scope.data.station = JSONDB.GetRowByID('stations', $stateParams.id);
-
-    $scope.display.title = ($rootScope.current_language == 'en' && $scope.data.station.name_en) ? $scope.data.station.name_en : ($scope.data.station.name_mm && $scope.data.station.name_mm);
-    $scope.display.name = ($rootScope.current_language == 'en' && $scope.data.station.name_en) ? $scope.data.station.name_en : ($scope.data.station.name_mm && $scope.data.station.name_mm);
-    $scope.display.tagline = $rootScope.current_language == 'en' ? 'Available Trains' : 'ေရာက္ရွိေသာရထားမ်ားး';
     
-    var path = JSONDB.GetRowsExact('paths', $stateParams.id,['station_id']);
-    $scope.data.path = JSONDB.JoinExact('trains', path, 'train_id', 'train');
+    var paths = JSONDB.GetRowsExact('paths', $stateParams.id,['station_id']);
+    var l = paths.length, arrivable_paths = [];
+    
+    for(var i=0; i<l; i++){ //filter and prepare to sort by arrival time
+        var path = paths[i];
+        if(path['arrival_time'] !== null && path['arrival_time'] !== '' && path['arrival_time'] !== 'null'){
+
+            var t1 = path['arrival_time'].split(':'), t2 = path['arrival_time'].split(':'), date; 
+            if(t1.length === 2 && t2.length === 2){
+                date = new Date(2000, 0, 1, parseInt(t1[0]), parseInt(t1[1])); // 9:00 AM
+            }
+            path.arrivalTime = date;
+            arrivable_paths.push(path);
+        }
+    }
+    arrivable_paths = _.sortBy(arrivable_paths, 'arrivalTime');
+    
+    $scope.data.paths = JSONDB.JoinExact('trains', arrivable_paths, 'train_id', 'train');
     
 
 

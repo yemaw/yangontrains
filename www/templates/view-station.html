@@ -3,31 +3,28 @@
         <div class="buttons">
             <button class="button header-item icon ion-ios-arrow-back bar-icon-right" ng-click="actionGoBack()">&nbsp;Back</button>
         </div>
-        <h1 class="title">{{display.title}}</h1>
+        <h1 class="title">Yangon Trains</h1>
         <div class="buttons">
-            <button class="button icon ion-map bar-icon-right"></button>
+            <button class="button icon ion-levels bar-icon-right" ng-click="actionOpenSetting()"></button>
         </div>
     </ion-header-bar>
     <ion-content class="toparea">
-            <div class="name">{{display.name}}</div>
-            <div class="tagline">{{display.tagline}}</div>
+            <div class="name">{{ (current_language == 'en' && data.station.name_en) ? data.station.name_en : data.station.name_mm }}</div>
+            <div class="desc"></div>
+            <div class="tagline">{{ (current_language == 'en') ? 'Trains' : 'ေရာက္ရွိႏိုင္ေသာ ရထားမ်ားး' }}</div>
+            <button class="button icon ion-map btn-map" ng-click="actionOpenMap()"></button>
     </ion-content>
     <ion-content class="below-toparea">
         <ion-list>
-            <ion-item class="item-icon-right item-thumbnail-left adjust-list-item-2" collection-repeat="row in data.path" type="item-text-wrap">
+            <ion-item class="item-icon-right item-thumbnail-left adjust-list-item-2" collection-repeat="row in data.paths" type="item-text-wrap">
                 <img ng-src="images/trains.imageset/train_60.png" class="left-thumbnail">
                 <h2 class="row-1">
-                    {{(current_language == 'en' && row.train.name_en) ? row.train.name_en : (row.train.name_mm && row.train.name_mm)}}
+                    {{(current_language == 'en' && row.train.name_en) ? row.train.name_en : row.train.name_mm}}
                 </h2>
                 <p class="row-2">
                     <span ng-if="row.arrival_time">
-                        {{ (current_language == 'en') ? 'arrive' : '၀င္'; }} 
+                        {{ (current_language == 'en') ? 'arrive at ' : '၀င္ခ်ိန္'; }} - 
                         <b>{{convertTime24to12(row.arrival_time)}}</b>
-                    </span>
-                    <span ng-if="row.arrival_time && row.departure_time" > - </span>
-                    <span ng-if="row.departure_time">
-                        {{ (current_language == 'en') ? 'depart' : 'ထြက္'; }} 
-                        <b>{{convertTime24to12(row.departure_time)}}</b>
                     </span>
                 </p>
             </ion-item>

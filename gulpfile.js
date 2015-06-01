@@ -29,9 +29,13 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
+gulp.task('cordova_prepare',function(){
+    shell('cordova prepare');
+});
+
 
 gulp.task('watch', function() {
-  gulp.watch(paths.sass, ['sass']);
+  gulp.watch(paths.sass, ['sass', 'cordova_prepare']);
 });
 
 gulp.task('install', ['git-check'], function() {

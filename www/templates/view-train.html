@@ -3,14 +3,19 @@
         <div class="buttons">
             <button class="button header-item icon ion-ios-arrow-back bar-icon-right" ng-click="actionGoBack()">&nbsp;Back</button>
         </div>
-        <h1 class="title">{{display.title}}</h1>
+        <h1 class="title">Yangon Trains</h1>
         <div class="buttons">
-            <button class="button icon ion-map bar-icon-right"></button>
+            <button class="button icon ion-levels bar-icon-right" ng-click="actionOpenSetting()"></button>
         </div>
     </ion-header-bar>
     <ion-content class="toparea">
-            <div class="name">{{display.name}}</div>
-            <div class="tagline">{{display.tagline}}</div>
+            <div class="name"> {{ (current_language == 'en' && data.train.name_en) ? data.train.name_en : data.train.name_mm }} </div>
+            <div class="desc">
+                <div ng-if="current_language == 'en'" ng-repeat="row in data.train.type_price_en">{{row}}</div>
+                <div ng-if="current_language != 'en'" ng-repeat="row in data.train.type_price_mm">{{row}}</div>
+            </div>
+            <div class="tagline">{{ (current_language == 'en') ? 'Stations' : 'ေရာက္ရွိေသာ ဘူတာ႐ံုမ်ား' }}</div>
+            <button class="button icon ion-map btn-map" ng-click="actionOpenMap()"></button>
     </ion-content>
     <ion-content class="below-toparea">
         <ion-list>

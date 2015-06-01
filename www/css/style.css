@@ -49,13 +49,15 @@ body *{font-family: 'ZawGyi' !important;}
 #map {margin: 0; padding: 0;height:100%;width:100%;border:1px solid #888888;border-radius: 1px;}
 
 .below-searchbox {margin-top:80px;}
-.below-toparea  {margin-top:85px;}
+.below-toparea  {margin-top:90px;}
 
 .bar-icon-left {border:1px solid transparent;margin-left:5px; }
 .bar-icon-right {border:1px solid transparent;margin-right:5px; }
 
-.toparea .name{font-size: 20px;padding:20px;font-weight: bold;}
-.toparea .tagline{text-decoration: underline;font-size: 13px;text-align: center;}
+.toparea .name{font-size: 20px;padding:20px 0px 5px 20px;font-weight: bold;line-height:20px;}
+.toparea .desc{font-size: 10px;padding: 0px 20px 5px 20px;font-weight: normal;line-height:15px;max-height:35px;overflow:visible;}
+.toparea .tagline{position:absolute;top:70px;text-decoration: underline;font-size: 13px;text-align: center;padding:2px 20px;width:100%;}
+.toparea .btn-map{position: absolute;right: 10px;top:15px;padding:2px;}
 
 .adjust-list-item-1 .row-1{line-height:25px;font-size: 18px;line-height:28px;}
 .adjust-list-item-1 .row-2{line-height:24px;}
