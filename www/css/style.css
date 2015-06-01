@@ -45,6 +45,8 @@
 	background-size:contain;
 	background-image: url('../images/station.imageset/station_60.png');
 }
+.tab-item-active *{color:#354b60;}
+
 body *{font-family: 'ZawGyi' !important;}
 #map {margin: 0; padding: 0;height:100%;width:100%;border:1px solid #888888;border-radius: 1px;}
 
@@ -85,7 +87,7 @@ body *{font-family: 'ZawGyi' !important;}
 .adjust-list-item-4 .left-thumbnail {}
 
 .adjust-list-item-5 .item-content{padding-top:5px;}
-.adjust-list-item-5 .row-1 {line-height: 30px;}
+.adjust-list-item-5 .row-1 {line-height: 26px;font-size: 18px;}
 .adjust-list-item-5 .row-2 {line-height:18px;font-size:11px;}
 .adjust-list-item-5 .row-3 {
 	position:absolute;top:10px;right:20px;font-size:12px;height:auto;width:auto;text-align:right;font-size:12px;color:#444444;font-weight: bold;padding:2px 5px 2px 25px;
@@ -121,13 +123,13 @@ body *{font-family: 'ZawGyi' !important;}
 	padding:0px 0px 0px 1px;
 }
 
-.route-header {margin-top:105px;padding:2px 5px;text-align: left;font-size:13px;color:#444444;}
-.route-title {text-decoration: underline;padding-left:10px;}
+.route-header {margin-top:105px;padding:2px 5px;text-align: left;color:#444444;}
+.route-title {text-decoration: underline;padding-left:10px;font-size: 12px;}
 .route-result {margin-top:145px;/*to sync*/}
 .route-header table{width:100%;}
 .route-header table td{vertical-align: middle;}
 .adjust-toggle table{margin-top:3px;}
-.route-header .showall-toggle-label {font-size:9px;display: inline-block;color:#888888;padding-top:2px;}
+.route-header .showall-toggle-label {font-size:9px;display: inline-block;color:#888888;padding-top:2px;padding-right: 5px;}
 .adjust-toggle .toggle .track{width:39px;height:20px;margin:0px;}
 .adjust-toggle .toggle .handle {width:15px;height: 15px;}
 

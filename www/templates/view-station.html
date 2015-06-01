@@ -3,12 +3,12 @@
         <div class="buttons">
             <button class="button header-item icon ion-ios-arrow-back bar-icon-right" ng-click="actionGoBack()">&nbsp;Back</button>
         </div>
-        <h1 class="title">Yangon Trains</h1>
+        <h1 class="title">{{ parseConfig.get('cdv_StationPageTitle_'+current_language) }}</h1>
         <div class="buttons">
             <button class="button icon ion-levels bar-icon-right" ng-click="actionOpenSetting()"></button>
         </div>
     </ion-header-bar>
-    <ion-content class="toparea">
+    <ion-content class="toparea" has-bouncing="false">
             <div class="name">{{ (current_language == 'en' && data.station.name_en) ? data.station.name_en : data.station.name_mm }}</div>
             <div class="desc"></div>
             <div class="tagline">{{ (current_language == 'en') ? 'Trains' : 'ေရာက္ရွိႏိုင္ေသာ ရထားမ်ားး' }}</div>

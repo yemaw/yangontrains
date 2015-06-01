@@ -126,10 +126,10 @@ angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrai
 
 //Controllers
 angular.module('yangontrains.controllers', [])
-.controller('YangonTrainsController', function(JSONDB, $scope,$rootScope, $ionicModal, $ionicHistory, $ionicLoading, SettingPreference) {
+.controller('YangonTrainsController', function(JSONDB, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, SettingPreference, ParseConfig) {
     $scope.modals = {};
     $scope.data = {};
-    
+    $scope.parseConfig = ParseConfig;
     $scope.data.facebook_page_link = 'https://www.facebook.com/yangonbuses';
     $scope.data.app_store_link = 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8';
     
@@ -257,8 +257,10 @@ angular.module('yangontrains.controllers', [])
         $rootScope.$broadcast("current_language_changed");
     };
 })
-.controller('RoutesController', function($scope, $rootScope, JSONDB, $ionicLoading, SettingPreference) {
+.controller('RoutesController', function($scope, $rootScope, JSONDB, $ionicLoading, SettingPreference, ParseConfig) {
     $ionicLoading.show();
+    
+    $scope.parseConfig = ParseConfig;
     $scope.at_top = false;
     $scope.inputs = {route_from:'',route_to:'',show_all_route:false};
     var animate = (function(toTop, focusClassName, callback){
@@ -524,10 +526,10 @@ angular.module('yangontrains.controllers', [])
         animate(false); 
     },500);
 })
-.controller('TrainsController', function($scope, JSONDB, $rootScope, $ionicLoading, SettingPreference) {
+.controller('TrainsController', function($scope, JSONDB, $rootScope, $ionicLoading, SettingPreference, ParseConfig) {
     $ionicLoading.show();
     $scope.data = {};
-    
+    $scope.parseConfig = ParseConfig;
     $scope.filterRows = function(){
         $scope.data.trains = JSONDB.GetRowsContains('trains', $scope.data.search_text, ['name_en', 'name_mm']);
         var l = $scope.data.trains.length;
@@ -552,10 +554,10 @@ angular.module('yangontrains.controllers', [])
         $ionicLoading.hide();
     },1000);
 })
-.controller('TrainController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference) {
+.controller('TrainController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference, ParseConfig) {
     $scope.data = {};   
     $scope.display = {};    
-
+    $scope.parseConfig = ParseConfig;
     $scope.data.train = JSONDB.GetRowByID('trains', $stateParams.id);
 
     var path = JSONDB.GetRowsExact('paths', $stateParams.id,['train_id']);
@@ -563,10 +565,10 @@ angular.module('yangontrains.controllers', [])
     
     $scope.safeApply();
 })
-.controller('StationsController', function($scope, JSONDB, $ionicLoading, SettingPreference) {
+.controller('StationsController', function($scope, JSONDB, $ionicLoading, SettingPreference, ParseConfig) {
     $ionicLoading.show();
     $scope.data = {};
-    
+    $scope.parseConfig = ParseConfig;
     $scope.filterRows = function(){
         $scope.data.stations = JSONDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
     }
@@ -581,10 +583,10 @@ angular.module('yangontrains.controllers', [])
         $ionicLoading.hide();
     },1000);
 })
-.controller('StationController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference) {
+.controller('StationController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference, ParseConfig) {
     $scope.data = {};   
     $scope.display = {};    
-
+    $scope.parseConfig = ParseConfig;
     $scope.data.station = JSONDB.GetRowByID('stations', $stateParams.id);
     
     var paths = JSONDB.GetRowsExact('paths', $stateParams.id,['station_id']);
@@ -617,8 +619,26 @@ angular.module('yangontrains.services', [])
     return new DatasetReader(yangontrains_data);
 })
 .service('SettingPreference', function(){
-    return new Preference('setting');
+    return new LocalPreferenceClass('setting');
+})
+.service('ParseConfig', function(){
+    return new ParseConfigClass({
+        'cdv_RoutesTabTitle_en'   : 'Route'  , 'cdv_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
+        'cdv_TrainsTabTitle_en'   : 'Trains'  , 'cdv_TrainsTabTitle_mm'   : 'ရထားမ်ား',
+        'cdv_StationsTabTitle_en' : 'Stations', 'cdv_StationsTabTitle_mm' : 'ဘူတာမ်ား',
+
+        'cdv_RoutesPageTitle_en'   : 'Yangon Trains', 'cdv_RoutesPageTitle_mm'   : 'Yangon Trains',
+        'cdv_TrainsPageTitle_en'   : 'Yangon Trains', 'cdv_TrainsPageTitle_mm'   : 'Yangon Trains', 
+        'cdv_StationsPageTitle_en' : 'Yangon Trains', 'cdv_StationsPageTitle_mm' : 'Yangon Trains',
+        'cdv_SettingsPageTitle_en' : 'Settings' , 'cdv_SettingsPageTitle_mm' : 'Settings', 
+
+        'cdv_TrainPageTitle_en'   : 'Yangon Trains', 'cdv_TrainPageTitle_mm'   : 'Yangon Trains',
+        'cdv_StationPageTitle_en' : 'Yangon Trains', 'cdv_StationPageTitle_mm' : 'Yangon Trains',
+
+
+    });
 });
+
 
 //Directives
 angular.module('yangontrains.directives', [])

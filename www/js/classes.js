@@ -1,7 +1,6 @@
 "use strict";
 
-
-var Preference = (function (prefixIn){
+var LocalPreferenceClass = (function (prefixIn){
     var prefix = prefixIn+'_';
 
     return {
@@ -13,6 +12,30 @@ var Preference = (function (prefixIn){
                 value = JSON.stringify(value);
             }
             localStorage.setItem(prefix+key, value);
+        }
+    };
+});
+
+var ParseConfigClass = (function (defaultsIn){
+
+    var defaults = defaultsIn || {};
+    
+    Parse.Config.get();
+
+    var configRefreshInterval = 12 * 60 * 60 * 1000;
+
+    if(typeof parse_refresh_interval !== 'undefined' && parse_refresh_interval !== null){
+        clearTimeout(parse_refresh_interval);
+    }
+
+    window.parse_refresh_interval = setTimeout(function(){
+        Parse.Config.get();
+    },configRefreshInterval);
+    
+    return {
+        //defaults: defaults,
+        get:function(key, defaultValue){
+            return Parse.Config.current().get(key) || defaultValue || defaults[key] || null;
         }
     };
 });
@@ -254,22 +277,19 @@ var EnvironmentDetector = (function(){
     } catch(e){}
     
     return {
-        //device
         isCordovaApp: function(){
             return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
         },
-        deviceType: deviceType,
-        isMobileApp : deviceType ? true : false,
         isWeb : function(){
-            return deviceType ? false : true;
+            return true;//deviceType ? false : true;
         },
         isIPhone : deviceType && deviceType.toLowerCase() === 'iphone',
         isIPad : deviceType && deviceType.toLowerCase() === 'ipad',
         isIOS : function(){
-            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
+            return true;//typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
         },
         isAndroid : function(){
-            return deviceType && deviceType.toLowerCase() === 'android';
+            return true;//deviceType && deviceType.toLowerCase() === 'android';
         },
         platformVersion: (window.device && window.device.version) ? window.device.version : null,
         model: (window.device && window.device.model) ? window.device.model : null,
