@@ -222,8 +222,10 @@ var GoogleMapClass = (function(configs){
                 coord_1 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
             } else if (typeof coord_1 === 'object' && coord_1.lat && coord_1.lng){
                 coord_1 = new google.maps.LatLng(coord_1.lat, coord_1.lng); 
-            } else {
-                //typeof debugErrorHandler === 'function' && debugErrorHandler('');
+            } else if (coord_1.length === 2){
+                var lat = parseFloat(coord_1[0]);
+                var lng = parseFloat(coord_1[1]);
+                coord_1 = new google.maps.LatLng(lat, lng); 
             }
 
             if(typeof coord_2 === 'string'){
@@ -231,10 +233,12 @@ var GoogleMapClass = (function(configs){
                 coord_2 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
             } else if (typeof coord_2 === 'object' && coord_2.lat && coord_2.lng){
                 coord_2 = new google.maps.LatLng(coord_2.lat, coord_2.lng); 
-            } else {
-                //typeof debugErrorHandler === 'function' && debugErrorHandler('');
+            } else if (coord_2.length === 2){
+                var lat = parseFloat(coord_2[0]);
+                var lng = parseFloat(coord_2[1]);
+                coord_2 = new google.maps.LatLng(lat, lng); 
             }
-
+            
             var bounds = new google.maps.LatLngBounds();
             bounds.extend(coord_1);
             bounds.extend(coord_2);

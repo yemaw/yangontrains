@@ -164,6 +164,38 @@ angular.module('yangontrains.controllers', [])
 
     $scope.actionOpenMap = function(what, data){
 
+        var getOutestCoordinates = function(coordinates){
+            var lat_smallest, lat_biggest, lng_smallest, lng_biggest;
+
+            for(var i=0; i<coordinates.length;i++){
+                var lat_lng = coordinates[i];
+                if(typeof lat_lng === 'string'){
+                    lat_lng = lat_lng.split(',');
+                    lat_lng[0] = parseFloat(lat_lng[0].trim());
+                    lat_lng[1] = parseFloat(lat_lng[1].trim());
+                }
+
+                if(lat_lng.length !== 2){
+                    //error
+                }
+                if(!lat_smallest || lat_lng[0] < lat_smallest){
+                    lat_smallest = lat_lng[0];
+                }
+                if(!lat_biggest || lat_lng[0] > lat_biggest){
+                    lat_biggest = lat_lng[0];
+                }
+                if(!lng_smallest || lat_lng[1] < lng_smallest){
+                    lng_smallest = lat_lng[1];
+                }
+                if(!lng_biggest || lat_lng[1] > lng_biggest){
+                    lng_biggest = lat_lng[1];
+                }
+                
+            }
+            
+            return [[lat_smallest, lng_smallest],[lat_biggest, lng_biggest]];
+        };
+
         $ionicModal.fromTemplateUrl('templates/view-map.html', {
             scope: $scope,
             animation: 'slide-in-up'
@@ -226,12 +258,11 @@ angular.module('yangontrains.controllers', [])
                         coordinates.push(lat_lng);
                     }    
                     AppMap.DrawLine(coordinates);
-                    //AppMap.FitBounds(coordinates[0], coordinates[coordinates.length-1]); // get most n s e w points#todo
+                    var bounds = getOutestCoordinates(coordinates);
+                    AppMap.FitBounds(bounds[0], bounds[1]); 
                     $ionicLoading.show({duration:2000});
                 }
-                
 
-                
             }, function(){
                 $ionicLoading.hide();
             }, window);
@@ -447,7 +478,7 @@ angular.module('yangontrains.controllers', [])
         };
 
         $ionicLoading.show();
-
+        $scope.data.have_trains_in_service_time = false;
         var from_id = $scope.current_from_id;
         var to_id = $scope.current_to_id;
         var from_station = $scope.from_station = JSONDB.GetRowByID('stations', from_id);
@@ -529,6 +560,7 @@ angular.module('yangontrains.controllers', [])
                             if(next > 0){
                                 train.arriveIn = $rootScope.getHumanReadableDuration(next); 
                                 train.available = true;
+                                $scope.data.have_trains_in_service_time = true;
                             } else {
                                 train.arriveIn = false;
                                 train.available = false;
@@ -539,7 +571,7 @@ angular.module('yangontrains.controllers', [])
                 }
             }
         }
-
+        
         trains = _.sortBy(trains, 'arrivalTime');
         
         $scope.data.routes = trains;
@@ -584,7 +616,7 @@ angular.module('yangontrains.controllers', [])
             var start_station = stations[0]['station'];
             var end_station   = stations[stations.length-1]['station'];
             $scope.data.trains[i]['start_station'] = ($rootScope.current_language == 'en' && start_station.name_en) ? start_station.name_en : start_station.name_mm && start_station.name_mm;
-            $scope.data.trains[i]['end_station']   = ($rootScope.current_language == 'mm' && start_station.name_mm) ? start_station.name_mm : start_station.name_en && start_station.name_en;           
+            $scope.data.trains[i]['end_station']   = ($rootScope.current_language == 'mm' && end_station.name_mm) ? end_station.name_mm : end_station.name_en && end_station.name_en;           
         }
     }
 
@@ -706,6 +738,9 @@ angular.module('yangontrains.services', [])
         'link_AppStoreLink_android' : 'market://details?id=com.theinhtikeaung.yangonbuses',
 
         //Others
+        'txt_ShowAllPath_en' : 'Show All',
+        'txt_ShowAllPath_mm' : 'Show All',
+
         'txt_About' : 'Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။',
 
     });

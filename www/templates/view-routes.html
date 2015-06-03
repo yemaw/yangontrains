@@ -42,7 +42,7 @@
 				<td class="adjust-toggle">
 					<table>
 						<tr>
-							<td class="showall-toggle-label">{{ (current_language == 'en') ? 'Show All' : 'Show all'}}</td>
+							<td class="showall-toggle-label">{{ parseConfig.get('txt_ShowAllPath_'+current_language) }}</td>
 							<td>
 								<label class="toggle toggle-dark">
 							       <input type="checkbox" ng-check="inputs.show_all_route" ng-model="inputs.show_all_route" ng-change="showAllRouteInputChanged()">
@@ -85,6 +85,7 @@
 					<i class="icon ion-chevron-right icon-accessory"></i>
 			</ion-item>
 		</ion-list>
+		<div ng-show="data.routes.length > 1 && data.have_trains_in_service_time === false">No Data .. doing this</div>
   	</ion-content>
 
 	<ion-content ng-show="show_stations_autocomplete" class="stations-autocomplete-wrapper">
