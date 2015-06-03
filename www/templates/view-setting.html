@@ -1,6 +1,6 @@
 <ion-modal-view>
 	<ion-header-bar>
-	  	<h1 class="title">{{ parseConfig.get('cdv_SettingsPageTitle_'+current_language) }}</h1>
+	  	<h1 class="title">{{ parseConfig.get('txt_SettingsPageTitle_'+current_language) }}</h1>
 	  	<div class="buttons">
 		    <button class="button button-stable bar-icon-right" ng-click="actionCloseSetting()">Close</button>
 	    </div>
@@ -20,14 +20,16 @@
 			<br />
 			<div class="item item-divider">Support</div>
 			<ion-item class="item item-icon-right" ng-click="actionOpenFacebookPage()">Facebook <i class="icon ion-social-facebook-outline adjust-item-right-icon-1"></i><i class="icon ion-chevron-right icon-accessory"></i></ion-item>
-			<ion-item class="item item-icon-right" ng-click="actionAppStorePage()">Rate on App Store <i class="icon ion-ios-star-outline adjust-item-right-icon-2"></i><i class="icon ion-chevron-right icon-accessory"></i></ion-item>
+			<ion-item class="item item-icon-right" ng-click="actionAppStorePage()">
+				{{ current_platform == 'ios' ? 'Rate on App Store' : 'Rate on Play Store'}}
+			<i class="icon ion-ios-star-outline adjust-item-right-icon-2"></i><i class="icon ion-chevron-right icon-accessory"></i></ion-item>
 
 			<div class="item item-divider">About</div>
-			<div class="item">App Version <span class="item-note">1.0</span></div>
-			<div class="item">DB Version <span class="item-note">5</div>
+			<div class="item">App Version <span class="item-note">{{app_version}}</span></div>
+			<div class="item">DB Version <span class="item-note">{{db_version}}</div>
 
 			<div style="padding:10px;">
-			Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။ 
+				{{txt_about}}
 			</div>
 		</div>
 	</ion-content>

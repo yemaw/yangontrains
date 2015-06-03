@@ -1,6 +1,7 @@
 
 //App
 angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrains.services', 'yangontrains.directives'])
+.constant('APP_VERSION', '1.1' )
 .run(function($ionicPlatform, $rootScope) {
   
     $rootScope.safeApply = function(fn) {
@@ -126,14 +127,16 @@ angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrai
 
 //Controllers
 angular.module('yangontrains.controllers', [])
-.controller('YangonTrainsController', function(JSONDB, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, SettingPreference, ParseConfig) {
+.controller('YangonTrainsController', function(APP_VERSION, JSONDB, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, SettingPreference, ParseConfig) {
     $scope.modals = {};
     $scope.data = {};
-    $scope.parseConfig = ParseConfig;
-    $scope.data.facebook_page_link = 'https://www.facebook.com/yangonbuses';
-    $scope.data.app_store_link = 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8';
     
+    $scope.txt_about = ParseConfig.get('txt_About');
+
+    $rootScope.parseConfig = ParseConfig;
+    $rootScope.app_version = parseFloat(APP_VERSION);
     $rootScope.current_language = SettingPreference.get('language', 'mm');
+    $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
 
     $rootScope.touchStartOnListView = function(){
         $('.searchbox, .from-textbox, .to-textbox').focusout();
@@ -159,7 +162,7 @@ angular.module('yangontrains.controllers', [])
         $scope.modals.setting.hide();
     };
 
-    $scope.actionOpenMap = function(){
+    $scope.actionOpenMap = function(what, data){
 
         $ionicModal.fromTemplateUrl('templates/view-map.html', {
             scope: $scope,
@@ -171,24 +174,64 @@ angular.module('yangontrains.controllers', [])
 
             loadGoogleMapAPI( 'AIzaSyBbKPpsv8iE4lTFY2ndSKykCXUZFZvu-Ro',  function(){
                 var AppMap = new GoogleMapClass({map_div:'map'});
-                $scope.data.stations = JSONDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
 
-                var l = $scope.data.stations.length, list = [];
-                
-                for(var i=0;i<l;i++){
-                    var station = $scope.data.stations[i];
-                    var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
-                    var title = (SettingPreference.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (SettingPreference.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
-                    AppMap.AddPlacemark(lat_lng, {
+                if(!what){
+                    $scope.data.stations = JSONDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
+
+                    var l = $scope.data.stations.length, list = [];
+                    
+                    for(var i=0;i<l;i++){
+                        var station = $scope.data.stations[i];
+                        var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
+                        var title = (SettingPreference.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (SettingPreference.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        AppMap.AddPlacemark(lat_lng, {
+                            title : title,
+                            icon:'images/markers/station-alzarin-512x512.png',
+                            animation: google.maps.Animation.DROP,
+                        },{
+                            content:'<h5>'+title+'</h5>'
+                        }); 
+                    }    
+                    $ionicLoading.show({duration:4000});
+                } else if (what === 'station' && data){
+                    
+                    var marker = AppMap.AddPlacemark(data.lat_long,{
                         title : title,
                         icon:'images/markers/station-alzarin-512x512.png',
                         animation: google.maps.Animation.DROP,
                     },{
-                        content:'<h5>'+title+'</h5>'
-                    }); 
-                }
+                        content:'<h5>'+data['name_'+SettingPreference.get('lang','mm')]+'</h5>'
+                    });
+                    
+                    var lat_lng = data.lat_long ? data.lat_long.split(',') : data.lat_lng.split(',');
+                    marker.infowindow && marker.infowindow.open(AppMap.GetMap(), marker);
+                    AppMap.SetCenter((lat_lng[0]).trim(), (lat_lng[1]).trim());
+                    AppMap.SetZoom(12);
+                    $ionicLoading.show({duration:1000});
+                } else if (what === 'train',data){
 
-                $ionicLoading.show({duration:4000});
+                    var l = data.length, coordinates = [];
+                    
+                    for(var i=0;i<l;i++){
+                        var station = data[i]['station'];
+                        var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
+                        var title = (SettingPreference.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (SettingPreference.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        AppMap.AddPlacemark(lat_lng, {
+                            title : title,
+                            icon:'images/markers/station-alzarin-512x512.png',
+                            animation: google.maps.Animation.DROP,
+                        },{
+                            content:'<h5>'+title+'</h5>'
+                        }); 
+                        coordinates.push(lat_lng);
+                    }    
+                    AppMap.DrawLine(coordinates);
+                    //AppMap.FitBounds(coordinates[0], coordinates[coordinates.length-1]); // get most n s e w points#todo
+                    $ionicLoading.show({duration:2000});
+                }
+                
+
+                
             }, function(){
                 $ionicLoading.hide();
             }, window);
@@ -211,24 +254,24 @@ angular.module('yangontrains.controllers', [])
             appAvailability.check(
                 'com.facebook.katana',
                 function() { 
-                    window.open('fb://page?id=807409185947603', '_system');
+                    window.open(ParseConfig.get('link_FacebookPageLink_android'), '_system');
                 },
                 function() {
-                    window.open('https://www.facebook.com/807409185947603', '_system');
+                    window.open(ParseConfig.get('link_FacebookPageLink_web'), '_system');
                 }
             );
         } else if (ENV.isCordovaApp() && ENV.isIOS()){
             appAvailability.check(
                 'fb://',
                 function() {
-                    window.open('fb://page?id=807409185947603', '_system');
+                    window.open(ParseConfig.get('link_FacebookPageLink_ios'), '_system');
                 },
                 function() {  
-                    window.open('https://www.facebook.com/807409185947603', '_system');
+                    window.open(ParseConfig.get('link_FacebookPageLink_web'), '_system');
                 }
             );
         } else {
-            window.open('https://www.facebook.com/807409185947603', '_system');
+            window.open(ParseConfig.get('link_FacebookPageLink_web'), '_system');
         }
     };
 
@@ -238,18 +281,19 @@ angular.module('yangontrains.controllers', [])
             appAvailability.check(
                 'com.android.vending',
                 function() { 
-                    window.open('market://details?id=com.theinhtikeaung.yangonbuses', '_system');
+                    window.open(ParseConfig.get('link_AppStoreLink_android'), '_system');
                 },
                 function() {
-                    window.open('https://play.google.com/store/apps/details?id=com.theinhtikeaung.yangonbuses', '_system');  
+                    window.open(ParseConfig.get('link_AppStoreLink_web'), '_system');
                 }
             );
         } else if (ENV.isCordovaApp() && ENV.isIOS()){
-            window.open('https://itunes.apple.com/us/app/yangon-trains/id931205785?mt=8', '_system');//all ios have app store app. no need to check.
+            window.open(ParseConfig.get('link_AppStoreLink_ios'), '_system');//all ios have app store app. no need to check.
         } else {
-            window.open('https://itunes.apple.com/us/app/yangon-trains/id931205785?mt=8', '_system');
+            window.open(ParseConfig.get('link_AppStoreLink_web'), '_system');
         }
     };
+
 
     $scope.actionSetLanguage = function(lang){
         SettingPreference.set('language', lang);
@@ -591,9 +635,9 @@ angular.module('yangontrains.controllers', [])
     
     var paths = JSONDB.GetRowsExact('paths', $stateParams.id,['station_id']);
     var l = paths.length, arrivable_paths = [];
-    
     for(var i=0; i<l; i++){ //filter and prepare to sort by arrival time
         var path = paths[i];
+
         if(path['arrival_time'] !== null && path['arrival_time'] !== '' && path['arrival_time'] !== 'null'){
 
             var t1 = path['arrival_time'].split(':'), t2 = path['arrival_time'].split(':'), date; 
@@ -623,18 +667,46 @@ angular.module('yangontrains.services', [])
 })
 .service('ParseConfig', function(){
     return new ParseConfigClass({
-        'cdv_RoutesTabTitle_en'   : 'Route'  , 'cdv_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
-        'cdv_TrainsTabTitle_en'   : 'Trains'  , 'cdv_TrainsTabTitle_mm'   : 'ရထားမ်ား',
-        'cdv_StationsTabTitle_en' : 'Stations', 'cdv_StationsTabTitle_mm' : 'ဘူတာမ်ား',
+        //Tab Titles
+        'txt_RoutesTabTitle_en'   : 'Route', 
+        'txt_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
 
-        'cdv_RoutesPageTitle_en'   : 'Yangon Trains', 'cdv_RoutesPageTitle_mm'   : 'Yangon Trains',
-        'cdv_TrainsPageTitle_en'   : 'Yangon Trains', 'cdv_TrainsPageTitle_mm'   : 'Yangon Trains', 
-        'cdv_StationsPageTitle_en' : 'Yangon Trains', 'cdv_StationsPageTitle_mm' : 'Yangon Trains',
-        'cdv_SettingsPageTitle_en' : 'Settings' , 'cdv_SettingsPageTitle_mm' : 'Settings', 
+        'txt_TrainsTabTitle_en'   : 'Trains',
+        'txt_TrainsTabTitle_mm'   : 'ရထားမ်ား',
+        
+        'txt_StationsTabTitle_en' : 'Stations',
+        'txt_StationsTabTitle_mm' : 'ဘူတာမ်ား',
 
-        'cdv_TrainPageTitle_en'   : 'Yangon Trains', 'cdv_TrainPageTitle_mm'   : 'Yangon Trains',
-        'cdv_StationPageTitle_en' : 'Yangon Trains', 'cdv_StationPageTitle_mm' : 'Yangon Trains',
+        //Page Titles
+        'txt_RoutesPageTitle_en'   : 'Yangon Trains',
+        'txt_RoutesPageTitle_mm'   : 'Yangon Trains',
 
+        'txt_TrainsPageTitle_en'   : 'Yangon Trains',
+        'txt_TrainsPageTitle_mm'   : 'Yangon Trains', 
+
+        'txt_StationsPageTitle_en' : 'Yangon Trains',
+        'txt_StationsPageTitle_mm' : 'Yangon Trains',
+        
+        'txt_SettingsPageTitle_en' : 'Settings' ,
+        'txt_SettingsPageTitle_mm' : 'Settings', 
+
+        'txt_TrainPageTitle_en'   : 'Yangon Trains',
+        'txt_TrainPageTitle_mm'   : 'Yangon Trains',
+
+        'txt_StationPageTitle_en' : 'Yangon Trains',
+        'txt_StationPageTitle_mm' : 'Yangon Trains',
+
+        //Links
+        'link_FacebookPageLink_web'  : 'https://www.facebook.com/807409185947603',
+        'link_FacebookPageLink_ios'  : 'fb://page?id=807409185947603',
+        'link_FacebookPageLink_android'  : 'fb://page?id=807409185947603',
+        
+        'link_AppStoreLink_web' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
+        'link_AppStoreLink_ios' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
+        'link_AppStoreLink_android' : 'market://details?id=com.theinhtikeaung.yangonbuses',
+
+        //Others
+        'txt_About' : 'Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။',
 
     });
 });

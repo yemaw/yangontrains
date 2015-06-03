@@ -184,7 +184,63 @@ var GoogleMapClass = (function(configs){
 
     return {
         map: map,
+        GetMap: function(){
+            return map;
+        },
+        SetZoom: function(level){
+            map.setZoom(level);
+        },
+        SetCenter : function(lat, lng){
+            var pt = new google.maps.LatLng(lat, lng);
+            map.setCenter(pt);
+        },
+        DrawLine:function(coordinatesIn,optionsIn){
+            var options = optionsIn || {};
+            var l = coordinatesIn.length, coordinates = [];
+            for(var i=0; i<l;i++){
+                var lat_lng = coordinatesIn[i];
+                if(typeof lat_lng === 'string'){
+                    var latlng = lat_lng.split(',');
+                    lat_lng = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+                } else if (typeof lat_lng === 'object' && lat_lng.lat && lat_lng.lng){
+                    lat_lng = new google.maps.LatLng(lat_lng.lat, lat_lng.lng); 
+                }
+                coordinates.push(lat_lng);
+            }
+            var path = new google.maps.Polyline({
+                path: coordinates,
+                strokeColor: options.strokeColor || '#2c3e50',
+                strokeOpacity: options.strokeOpacity || 1.0,
+                strokeWeight: options.strokeWeight || 2
+            });
 
+            path.setMap(map);
+        },
+        FitBounds:function(coord_1, coord_2){
+            if(typeof coord_1 === 'string'){
+                var latlng = coord_1.split(',');
+                coord_1 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+            } else if (typeof coord_1 === 'object' && coord_1.lat && coord_1.lng){
+                coord_1 = new google.maps.LatLng(coord_1.lat, coord_1.lng); 
+            } else {
+                //typeof debugErrorHandler === 'function' && debugErrorHandler('');
+            }
+
+            if(typeof coord_2 === 'string'){
+                var latlng = coord_2.split(',');
+                coord_2 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+            } else if (typeof coord_2 === 'object' && coord_2.lat && coord_2.lng){
+                coord_2 = new google.maps.LatLng(coord_2.lat, coord_2.lng); 
+            } else {
+                //typeof debugErrorHandler === 'function' && debugErrorHandler('');
+            }
+
+            var bounds = new google.maps.LatLngBounds();
+            bounds.extend(coord_1);
+            bounds.extend(coord_2);
+            map.fitBounds(bounds);
+
+        },
         AddPlacemark:function(lat_lng, options, infoWindow){
             
             var title = title || '';
@@ -212,6 +268,10 @@ var GoogleMapClass = (function(configs){
             var marker = new google.maps.Marker(options);
 
             if(infoWindow){
+                marker.infowindow = new google.maps.InfoWindow({
+                    content: infoWindow.content || ''
+                });
+
                 google.maps.event.addListener(marker, 'click', function() {
                     
                     var l=infoWindows.length;
@@ -219,10 +279,7 @@ var GoogleMapClass = (function(configs){
                         infoWindows[i].close && infoWindows[i].close();
                     }
                     infoWindows = [];
-
-                    marker.infowindow = new google.maps.InfoWindow({
-                        content: infoWindow.content || ''
-                    });
+                    
                     marker.infowindow.open(map, marker);
                     infoWindows.push(marker.infowindow);
                 }); 
