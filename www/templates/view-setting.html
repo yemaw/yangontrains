@@ -26,7 +26,7 @@
 
 			<div class="item item-divider">About</div>
 			<div class="item">App Version <span class="item-note">{{app_version}}</span></div>
-			<div class="item">DB Version <span class="item-note">{{db_version}}</div>
+			<div class="item">DB Version <span class="item-note">{{localConfigs.get('CURRENT_DB_VERSION', '1')}}</div>
 
 			<div style="padding:10px;">
 				{{txt_about}}

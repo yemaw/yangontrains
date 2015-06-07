@@ -1,11 +1,23 @@
 "use strict";
 
-var LocalPreferenceClass = (function (prefixIn){
-    var prefix = prefixIn+'_';
+var LocalConfigClass = (function (prefixIn, defaultsIn){
+    var prefix = prefixIn ? prefixIn+'_' : '';
+
+    var defaults = defaultsIn || {};
 
     return {
         get:function(key, defaultValue){
-            return localStorage.getItem(prefix+key) || defaultValue;
+            key = prefix+key;
+            var localValue = localStorage.getItem(key);
+            if(typeof localValue !== 'undefined' && localValue !== null){
+                return localValue;
+            } else if(typeof defaultValue !== 'undefined'){
+                return defaultValue;
+            } else if (typeof defaults[key] !== 'undefined'){
+                return defaults[key];
+            } else {
+                return;
+            }
         },
         set:function(key, value){
             if(typeof value === 'object'){
@@ -33,9 +45,17 @@ var ParseConfigClass = (function (defaultsIn){
     },configRefreshInterval);
     
     return {
-        //defaults: defaults,
         get:function(key, defaultValue){
-            return Parse.Config.current().get(key) || defaultValue || defaults[key] || null;
+            var parseValue = Parse.Config.current().get(key);
+            if(typeof parseValue !== 'undefined' && parseValue !== null){
+                return parseValue;
+            } else if(typeof defaultValue !== 'undefined'){
+                return defaultValue;
+            } else if (typeof defaults[key] !== 'undefined'){
+                return defaults[key];
+            } else {
+                return;
+            }
         }
     };
 });
@@ -296,7 +316,6 @@ var GoogleMapClass = (function(configs){
             var l = list.length;
             var placemarks = [];
             for(var i=0; i<l; i++){
-                console.log(list[i]);
                 var lat_lng = list[i].lat_lng;
                 placemarks.push(this.AddPlacemark(lat_lng, list[i]));
             }
@@ -312,6 +331,8 @@ var GoogleMapClass = (function(configs){
 var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
     "use strict";
     
+    $.ajaxSetup({cache: true});
+
     if(!global && window){
         var global = window;
     }
@@ -356,4 +377,79 @@ var EnvironmentDetector = (function(){
         model: (window.device && window.device.model) ? window.device.model : null,
     };
 });
+
+var LocalSyncFile = (function(filepath, url){
+    
+    var $this = this;
+
+    $this.filePath = filepath;
+    $this.url = url;
+
+    $this.ReadAsTextFile = function(onSuccess, onError){
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){ 
+            fileSystem.root.getFile(filepath, null, function(fileEntry){
+                fileEntry.file(function(file){
+                    var fileReader = new FileReader();
+                    fileReader.onloadend = function(evt) {
+                        var content = evt.target.result;
+                        typeof onSuccess === 'function' && onSuccess(content);
+                    };
+                    fileReader.readAsText(file);
+                }, function(){
+                    typeof onError === 'function' && onError();
+                });
+                
+            }, function(){
+                typeof onError === 'function' && onError();
+            });
+        },function(){
+            typeof onError === 'function' && onError();
+        });
+    };
+
+    $this.WriteAsTextFile = function(content, onSuccess, onError){
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
+            fileSystem.root.getFile(filepath, {create: true}, function(file){
+                file.createWriter(function(fileWriter) {
+                    fileWriter.onwrite = function(evt) {
+                        typeof onSuccess === 'function' && onSuccess();
+                    };
+                    if(typeof content === 'object'){
+                        content = JSON.stringify(content);
+                    }
+                    fileWriter.write(content);
+                },function(){
+                    typeof onError === 'function' && onError();
+                });
+            },function(){
+                typeof onError === 'function' && onError();
+            });
+        }, function(){
+            typeof onError === 'function' && onError();
+        });
+    };
+
+    $this.Update = function(onSuccess, onError){
+        $.getJSON(url, function(data, status){
+            if(status === 'success'){
+                $this.WriteAsTextFile(data,function(){
+                    typeof onSuccess === 'function' && onSuccess();
+                }, function(){
+                    typeof onError === 'function' && onError();
+                });
+            }
+        }).fail(function() {
+            typeof onError === 'function' && onError();
+        });    
+    };
+    
+
+    return $this;
+});
+
+
+
+
+
+
 

@@ -19,6 +19,7 @@
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="false"/>
   </feature>
+  
   <platform name="ios">
     <icon src="resources/ios/icon/Icon.png" width="57" height="57"/>
     <icon src="resources/ios/icon/Icon@2x.png" width="114" height="114"/>

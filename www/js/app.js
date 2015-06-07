@@ -1,64 +1,9 @@
 
 //App
 angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrains.services', 'yangontrains.directives'])
-.constant('APP_VERSION', '1.1' )
-.run(function($ionicPlatform, $rootScope) {
-  
-    $rootScope.safeApply = function(fn) {
-        var phase = this.$root.$$phase;
-        if(phase == '$apply' || phase == '$digest') {
-            if(fn && (typeof(fn) === 'function')) {
-                fn();
-            }
-        } else {
-            this.$apply(fn);
-        }
-    };
-
-    $rootScope.convertTime24to12 = function (time24){
-        //https://getsatisfaction.com/apperyio/topics/how_do_you_convert_24_hour_time_to_am_pm_using_javascript
-        var tmpArr = time24.split(':'), time12;
-        if(+tmpArr[0] == 12) {
-            time12 = tmpArr[0] + ':' + tmpArr[1] + ' PM';
-        } else {
-          if(+tmpArr[0] == 00) {
-            time12 = '12:' + tmpArr[1] + ' AM';
-            } else {
-                if(+tmpArr[0] > 12) {
-                    time12 = (+tmpArr[0]-12) + ':' + tmpArr[1] + ' PM';
-                } else {
-                    time12 = (+tmpArr[0]) + ':' + tmpArr[1] + ' AM';
-                }
-            }
-        }
-        return time12;
-    };
-
-    $rootScope.getHumanReadableDuration = function(diff){
-        var milliseconds = parseInt((diff%1000)/100);
-        var seconds = parseInt((diff/1000)%60);
-        var minutes = parseInt((diff/(1000*60))%60);
-        var hours = parseInt((diff/(1000*60*60))%24);
-
-        var duration = hours>0 ? hours+' h ' : '';
-        duration+= minutes+' m ';
-      
-        return duration;
-    };
-
-    $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-        if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
-            //cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-        }
-        if (window.StatusBar) {
-            //--StatusBar.styleLightContent();
-        }
-    });
-})
+.constant('APP_VERSION', '1.0' )
 .config(function($stateProvider, $urlRouterProvider) {
-
+    
     $stateProvider
     .state('yangontrains', {
         url: "/yangontrains",
@@ -122,20 +67,78 @@ angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrai
     });
     
     $urlRouterProvider.otherwise('/yangontrains/routes');
+})
+.run(function($ionicPlatform, $rootScope) {
+    
+    $rootScope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+            if(fn && (typeof(fn) === 'function')) {
+                fn();
+            }
+        } else {
+            this.$apply(fn);
+        }
+    };
+
+    $rootScope.convertTime24to12 = function (time24){
+        //https://getsatisfaction.com/apperyio/topics/how_do_you_convert_24_hour_time_to_am_pm_using_javascript
+        var tmpArr = time24.split(':'), time12;
+        if(+tmpArr[0] == 12) {
+            time12 = tmpArr[0] + ':' + tmpArr[1] + ' PM';
+        } else {
+          if(+tmpArr[0] == 00) {
+            time12 = '12:' + tmpArr[1] + ' AM';
+            } else {
+                if(+tmpArr[0] > 12) {
+                    time12 = (+tmpArr[0]-12) + ':' + tmpArr[1] + ' PM';
+                } else {
+                    time12 = (+tmpArr[0]) + ':' + tmpArr[1] + ' AM';
+                }
+            }
+        }
+        return time12;
+    };
+
+    $rootScope.getHumanReadableDuration = function(diff){
+        var milliseconds = parseInt((diff%1000)/100);
+        var seconds = parseInt((diff/1000)%60);
+        var minutes = parseInt((diff/(1000*60))%60);
+        var hours = parseInt((diff/(1000*60*60))%24);
+
+        var duration = hours>0 ? hours+' h ' : '';
+        duration+= minutes+' m ';
+      
+        return duration;
+    };
+
+    $ionicPlatform.ready(function() {
+    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+    // for form inputs)
+        if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
+            //cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+        }
+        if (window.StatusBar) {
+            //--StatusBar.styleLightContent();
+        }
+    });
 });
 
 
 //Controllers
 angular.module('yangontrains.controllers', [])
-.controller('YangonTrainsController', function(APP_VERSION, JSONDB, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, SettingPreference, ParseConfig) {
+.controller('YangonTrainsController', function(APP_VERSION, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading ) {
+
+    
     $scope.modals = {};
     $scope.data = {};
     
     $scope.txt_about = ParseConfig.get('txt_About');
 
     $rootScope.parseConfig = ParseConfig;
+    $rootScope.localConfig = LocalConfig;
     $rootScope.app_version = parseFloat(APP_VERSION);
-    $rootScope.current_language = SettingPreference.get('language', 'mm');
+    $rootScope.current_language = LocalConfig.get('language', 'mm');
     $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
 
     $rootScope.touchStartOnListView = function(){
@@ -208,14 +211,14 @@ angular.module('yangontrains.controllers', [])
                 var AppMap = new GoogleMapClass({map_div:'map'});
 
                 if(!what){
-                    $scope.data.stations = JSONDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
+                    $scope.data.stations = JsonDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
 
                     var l = $scope.data.stations.length, list = [];
                     
                     for(var i=0;i<l;i++){
                         var station = $scope.data.stations[i];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
-                        var title = (SettingPreference.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (SettingPreference.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        var title = (LocalConfig.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
                         AppMap.AddPlacemark(lat_lng, {
                             title : title,
                             icon:'images/markers/station-alzarin-512x512.png',
@@ -232,7 +235,7 @@ angular.module('yangontrains.controllers', [])
                         icon:'images/markers/station-alzarin-512x512.png',
                         animation: google.maps.Animation.DROP,
                     },{
-                        content:'<h5>'+data['name_'+SettingPreference.get('lang','mm')]+'</h5>'
+                        content:'<h5>'+data['name_'+LocalConfig.get('lang','mm')]+'</h5>'
                     });
                     
                     var lat_lng = data.lat_long ? data.lat_long.split(',') : data.lat_lng.split(',');
@@ -247,7 +250,7 @@ angular.module('yangontrains.controllers', [])
                     for(var i=0;i<l;i++){
                         var station = data[i]['station'];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
-                        var title = (SettingPreference.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (SettingPreference.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        var title = (LocalConfig.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
                         AppMap.AddPlacemark(lat_lng, {
                             title : title,
                             icon:'images/markers/station-alzarin-512x512.png',
@@ -327,15 +330,14 @@ angular.module('yangontrains.controllers', [])
 
 
     $scope.actionSetLanguage = function(lang){
-        SettingPreference.set('language', lang);
-        $rootScope.current_language = SettingPreference.get('language', 'mm');
+        LocalConfig.set('language', lang);
+        $rootScope.current_language = LocalConfig.get('language', 'mm');
         $rootScope.$broadcast("current_language_changed");
     };
 })
-.controller('RoutesController', function($scope, $rootScope, JSONDB, $ionicLoading, SettingPreference, ParseConfig) {
+.controller('RoutesController', function($scope, $rootScope, $ionicLoading) {
     $ionicLoading.show();
     
-    $scope.parseConfig = ParseConfig;
     $scope.at_top = false;
     $scope.inputs = {route_from:'',route_to:'',show_all_route:false};
     var animate = (function(toTop, focusClassName, callback){
@@ -366,9 +368,9 @@ angular.module('yangontrains.controllers', [])
 
     var filterStations = (function(keyword){
         if(keyword){
-            $scope.data.stations = JSONDB.GetRowsContains('stations', keyword, ['name_en', 'name_mm']); 
+            $scope.data.stations = JsonDB.GetRowsContains('stations', keyword, ['name_en', 'name_mm']); 
         } else {
-            $scope.data.stations = JSONDB.GetAll('stations');   
+            $scope.data.stations = JsonDB.GetAll('stations');   
         }
         $scope.show_stations_autocomplete = true;
         $scope.safeApply();
@@ -481,8 +483,8 @@ angular.module('yangontrains.controllers', [])
         $scope.data.have_trains_in_service_time = false;
         var from_id = $scope.current_from_id;
         var to_id = $scope.current_to_id;
-        var from_station = $scope.from_station = JSONDB.GetRowByID('stations', from_id);
-        var to_station = $scope.to_station = JSONDB.GetRowByID('stations', to_id);
+        var from_station = $scope.from_station = JsonDB.GetRowByID('stations', from_id);
+        var to_station = $scope.to_station = JsonDB.GetRowByID('stations', to_id);
 
         $scope.result_title  = '';
         $scope.result_title += ($rootScope.current_language == 'en') ? 'from ' : '';
@@ -500,8 +502,8 @@ angular.module('yangontrains.controllers', [])
             return;
         }
 
-        var from_paths = JSONDB.GetRowsExact('paths', from_id,['station_id']);
-        var to_paths = JSONDB.GetRowsExact('paths', to_id,['station_id']);
+        var from_paths = JsonDB.GetRowsExact('paths', from_id,['station_id']);
+        var to_paths = JsonDB.GetRowsExact('paths', to_id,['station_id']);
         
         var l1= from_paths.length;
         var l2 = to_paths.length;
@@ -515,8 +517,8 @@ angular.module('yangontrains.controllers', [])
                     (parseInt(fp.path_order) < parseInt(tp.path_order)) 
                   ) 
                 {
-                    var train = JSONDB.GetRowByID('trains',fp.train_id);
-                    var paths = JSONDB.GetRowsExact('paths', train.id,['train_id']);
+                    var train = JsonDB.GetRowByID('trains',fp.train_id);
+                    var paths = JsonDB.GetRowsExact('paths', train.id,['train_id']);
                     paths = paths.sort(pathOrderSorter);//just make sure path is in order
                     
                     var l3 = paths.length;
@@ -602,17 +604,16 @@ angular.module('yangontrains.controllers', [])
         animate(false); 
     },500);
 })
-.controller('TrainsController', function($scope, JSONDB, $rootScope, $ionicLoading, SettingPreference, ParseConfig) {
+.controller('TrainsController', function($scope, $rootScope, $ionicLoading ) {
     $ionicLoading.show();
     $scope.data = {};
-    $scope.parseConfig = ParseConfig;
     $scope.filterRows = function(){
-        $scope.data.trains = JSONDB.GetRowsContains('trains', $scope.data.search_text, ['name_en', 'name_mm']);
+        $scope.data.trains = JsonDB.GetRowsContains('trains', $scope.data.search_text, ['name_en', 'name_mm']);
         var l = $scope.data.trains.length;
         for(var i=0; i<l; i++){
             var train = $scope.data.trains[i];
-            var path = JSONDB.GetRowsExact('paths', train.id,['train_id']);
-            var stations = JSONDB.JoinExact('stations', path, 'station_id', 'station');
+            var path = JsonDB.GetRowsExact('paths', train.id,['train_id']);
+            var stations = JsonDB.JoinExact('stations', path, 'station_id', 'station');
             var start_station = stations[0]['station'];
             var end_station   = stations[stations.length-1]['station'];
             $scope.data.trains[i]['start_station'] = ($rootScope.current_language == 'en' && start_station.name_en) ? start_station.name_en : start_station.name_mm && start_station.name_mm;
@@ -630,23 +631,21 @@ angular.module('yangontrains.controllers', [])
         $ionicLoading.hide();
     },1000);
 })
-.controller('TrainController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference, ParseConfig) {
+.controller('TrainController', function($scope, $stateParams, $rootScope) {
     $scope.data = {};   
     $scope.display = {};    
-    $scope.parseConfig = ParseConfig;
-    $scope.data.train = JSONDB.GetRowByID('trains', $stateParams.id);
+    $scope.data.train = JsonDB.GetRowByID('trains', $stateParams.id);
 
-    var path = JSONDB.GetRowsExact('paths', $stateParams.id,['train_id']);
-    $scope.data.path = JSONDB.JoinExact('stations', path, 'station_id', 'station');
+    var path = JsonDB.GetRowsExact('paths', $stateParams.id,['train_id']);
+    $scope.data.path = JsonDB.JoinExact('stations', path, 'station_id', 'station');
     
     $scope.safeApply();
 })
-.controller('StationsController', function($scope, JSONDB, $ionicLoading, SettingPreference, ParseConfig) {
+.controller('StationsController', function($scope, $ionicLoading) {
     $ionicLoading.show();
     $scope.data = {};
-    $scope.parseConfig = ParseConfig;
     $scope.filterRows = function(){
-        $scope.data.stations = JSONDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
+        $scope.data.stations = JsonDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
     }
 
     $scope.$on('current_language_changed',function(){
@@ -659,13 +658,12 @@ angular.module('yangontrains.controllers', [])
         $ionicLoading.hide();
     },1000);
 })
-.controller('StationController', function($scope, $stateParams, $rootScope, JSONDB, SettingPreference, ParseConfig) {
+.controller('StationController', function($scope, $stateParams, $rootScope ) {
     $scope.data = {};   
     $scope.display = {};    
-    $scope.parseConfig = ParseConfig;
-    $scope.data.station = JSONDB.GetRowByID('stations', $stateParams.id);
+    $scope.data.station = JsonDB.GetRowByID('stations', $stateParams.id);
     
-    var paths = JSONDB.GetRowsExact('paths', $stateParams.id,['station_id']);
+    var paths = JsonDB.GetRowsExact('paths', $stateParams.id,['station_id']);
     var l = paths.length, arrivable_paths = [];
     for(var i=0; i<l; i++){ //filter and prepare to sort by arrival time
         var path = paths[i];
@@ -682,69 +680,17 @@ angular.module('yangontrains.controllers', [])
     }
     arrivable_paths = _.sortBy(arrivable_paths, 'arrivalTime');
     
-    $scope.data.paths = JSONDB.JoinExact('trains', arrivable_paths, 'train_id', 'train');
+    $scope.data.paths = JsonDB.JoinExact('trains', arrivable_paths, 'train_id', 'train');
     
-
 
     $scope.safeApply();
 });
 
 //Services
 angular.module('yangontrains.services', [])
-.service('JSONDB', function(){
+/*.service('JsonDB', function($http){
     return new DatasetReader(yangontrains_data);
-})
-.service('SettingPreference', function(){
-    return new LocalPreferenceClass('setting');
-})
-.service('ParseConfig', function(){
-    return new ParseConfigClass({
-        //Tab Titles
-        'txt_RoutesTabTitle_en'   : 'Route', 
-        'txt_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
-
-        'txt_TrainsTabTitle_en'   : 'Trains',
-        'txt_TrainsTabTitle_mm'   : 'ရထားမ်ား',
-        
-        'txt_StationsTabTitle_en' : 'Stations',
-        'txt_StationsTabTitle_mm' : 'ဘူတာမ်ား',
-
-        //Page Titles
-        'txt_RoutesPageTitle_en'   : 'Yangon Trains',
-        'txt_RoutesPageTitle_mm'   : 'Yangon Trains',
-
-        'txt_TrainsPageTitle_en'   : 'Yangon Trains',
-        'txt_TrainsPageTitle_mm'   : 'Yangon Trains', 
-
-        'txt_StationsPageTitle_en' : 'Yangon Trains',
-        'txt_StationsPageTitle_mm' : 'Yangon Trains',
-        
-        'txt_SettingsPageTitle_en' : 'Settings' ,
-        'txt_SettingsPageTitle_mm' : 'Settings', 
-
-        'txt_TrainPageTitle_en'   : 'Yangon Trains',
-        'txt_TrainPageTitle_mm'   : 'Yangon Trains',
-
-        'txt_StationPageTitle_en' : 'Yangon Trains',
-        'txt_StationPageTitle_mm' : 'Yangon Trains',
-
-        //Links
-        'link_FacebookPageLink_web'  : 'https://www.facebook.com/807409185947603',
-        'link_FacebookPageLink_ios'  : 'fb://page?id=807409185947603',
-        'link_FacebookPageLink_android'  : 'fb://page?id=807409185947603',
-        
-        'link_AppStoreLink_web' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
-        'link_AppStoreLink_ios' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
-        'link_AppStoreLink_android' : 'market://details?id=com.theinhtikeaung.yangonbuses',
-
-        //Others
-        'txt_ShowAllPath_en' : 'Show All',
-        'txt_ShowAllPath_mm' : 'Show All',
-
-        'txt_About' : 'Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။',
-
-    });
-});
+});*/
 
 
 //Directives
