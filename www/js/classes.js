@@ -60,6 +60,21 @@ var ParseConfigClass = (function (defaultsIn){
     };
 });
 
+var LocalizationClass = (function(values){
+
+    var values = values || {};
+
+    return (function(key, fallbackValue){
+        if(values[key]){
+            return values[key];
+        } else if(typeof fallbackValue !== 'undefined'){
+            return fallbackValue;
+        } else {
+            return;
+        }
+    });
+});
+
 var DatasetReader = (function (datasetIn){
     
     var dataset = datasetIn;
@@ -178,7 +193,7 @@ var GoogleMapClass = (function(configs){
     configs.scaleControl = true;
     configs.zoomControl = true;
     configs.scaleControlOptions = {
-        position:google.maps.ControlPosition.BOTTOM_CENTER//no working
+        position:google.maps.ControlPosition.BOTTOM_CENTER//not working
     }
 
     //initializations
@@ -188,7 +203,7 @@ var GoogleMapClass = (function(configs){
         strokeWeight: 1
     });
 
-    //Sorry google. Just that this is annoying to user.
+    //Sorry google. Just that this is annoying to user on small screen devices.
     function tryRemoveTaC(){
         var els = document.getElementsByClassName('gmnoprint');
         for (var i = 0, l = els.length; i < l; i++) {
@@ -199,8 +214,6 @@ var GoogleMapClass = (function(configs){
         }
     }
     setTimeout(function(){tryRemoveTaC();setTimeout(function(){tryRemoveTaC();setTimeout(function(){tryRemoveTaC();setTimeout(function(){tryRemoveTaC();},3000);},3000);},3000);},3000);
-
-
 
     return {
         map: map,
@@ -321,10 +334,26 @@ var GoogleMapClass = (function(configs){
             }
             
             return placemarks;
+        },
+
+        SetPageTitle:function (text) {
+
+            var titleDiv = document.createElement('div');
+            titleDiv.style.marginTop = '26px';
+            titleDiv.style.textAlign = 'center';
+            
+            var titleText = document.createElement('div');
+            titleText.style.color = '#444444';
+            titleText.style.fontSize = '18px';
+            //titleText.style.fontWeight = 'bold';
+            titleText.style.lineHeight = '24px';
+            titleText.style.paddingLeft = '5px';
+            titleText.style.paddingRight = '5px';
+            titleText.innerHTML = text;
+            titleDiv.appendChild(titleText);
+
+            map.controls[google.maps.ControlPosition.TOP_CENTER].push(titleDiv);
         }
-
-
-
     }
 });
 
@@ -352,29 +381,35 @@ var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
 
 var EnvironmentDetector = (function(){
     
-    var deviceType = '';
+    var screenType = '';
     try{
         //detect device type with js
-        deviceType = (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : null;    
+        screenType = (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : null;    
     } catch(e){}
     
     return {
+        getScreenType: function(){
+            try{
+                return (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : null;    
+            } catch(e){}
+            return null;
+        },
         isCordovaApp: function(){
             return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
         },
         isWeb : function(){
-            return true;//deviceType ? false : true;
+            return screenType ? false : true;
         },
-        isIPhone : deviceType && deviceType.toLowerCase() === 'iphone',
-        isIPad : deviceType && deviceType.toLowerCase() === 'ipad',
+        /*isIPhone : screenType && screenType.toLowerCase() === 'iphone',
+        isIPad : screenType && screenType.toLowerCase() === 'ipad',*/
         isIOS : function(){
-            return true;//typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
+            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
         },
         isAndroid : function(){
-            return true;//deviceType && deviceType.toLowerCase() === 'android';
+            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'android';
         },
-        platformVersion: (window.device && window.device.version) ? window.device.version : null,
-        model: (window.device && window.device.model) ? window.device.model : null,
+        /*platformVersion: (window.device && window.device.version) ? window.device.version : null,
+        model: (window.device && window.device.model) ? window.device.model : null,*/
     };
 });
 

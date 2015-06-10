@@ -137,6 +137,7 @@ angular.module('yangontrains.controllers', [])
 
     $rootScope.parseConfig = ParseConfig;
     $rootScope.localConfig = LocalConfig;
+    $rootScope.localizedText = LocalizedText;
     $rootScope.app_version = parseFloat(APP_VERSION);
     $rootScope.current_language = LocalConfig.get('language', 'mm');
     $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
@@ -165,7 +166,7 @@ angular.module('yangontrains.controllers', [])
         $scope.modals.setting.hide();
     };
 
-    $scope.actionOpenMap = function(what, data){
+    $scope.actionOpenMap = function(what, data, data2){
 
         var getOutestCoordinates = function(coordinates){
             var lat_smallest, lat_biggest, lng_smallest, lng_biggest;
@@ -218,7 +219,7 @@ angular.module('yangontrains.controllers', [])
                     for(var i=0;i<l;i++){
                         var station = $scope.data.stations[i];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
-                        var title = (LocalConfig.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        var title = (LocalConfig.get('language','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('language','mm') === 'en' && station.name_en) ? station.name_en : '';
                         AppMap.AddPlacemark(lat_lng, {
                             title : title,
                             icon:'images/markers/station-alzarin-512x512.png',
@@ -226,31 +227,33 @@ angular.module('yangontrains.controllers', [])
                         },{
                             content:'<h5>'+title+'</h5>'
                         }); 
-                    }    
+                    }
+                    AppMap.SetPageTitle(LocalConfig.get('language','mm') == 'en' ? 'Stations' : 'ဘူတာ႐ံုမ်ား');
                     $ionicLoading.show({duration:4000});
                 } else if (what === 'station' && data){
-                    
+                    var name = (LocalConfig.get('language','mm') == 'en' && data['name_en']) ? data['name_en'] : data['name_mm'];
                     var marker = AppMap.AddPlacemark(data.lat_long,{
                         title : title,
                         icon:'images/markers/station-alzarin-512x512.png',
                         animation: google.maps.Animation.DROP,
                     },{
-                        content:'<h5>'+data['name_'+LocalConfig.get('lang','mm')]+'</h5>'
+                        content:'<h5>'+name+'</h5>'
                     });
                     
                     var lat_lng = data.lat_long ? data.lat_long.split(',') : data.lat_lng.split(',');
                     marker.infowindow && marker.infowindow.open(AppMap.GetMap(), marker);
                     AppMap.SetCenter((lat_lng[0]).trim(), (lat_lng[1]).trim());
                     AppMap.SetZoom(12);
+                    AppMap.SetPageTitle(name);
                     $ionicLoading.show({duration:1000});
-                } else if (what === 'train',data){
-
+                } else if (what === 'train' && data && data2){
+                    var name = LocalConfig.get('language','mm') == 'en' && data2['name_en'] ? data2['name_en'] : data2['name_mm'];
                     var l = data.length, coordinates = [];
                     
                     for(var i=0;i<l;i++){
                         var station = data[i]['station'];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
-                        var title = (LocalConfig.get('lang','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('lang','mm') === 'en' && station.name_en) ? station.name_en : '';
+                        var title = (LocalConfig.get('language','mm') === 'mm' && station.name_mm) ? station.name_mm : (LocalConfig.get('language','mm') === 'en' && station.name_en) ? station.name_en : '';
                         AppMap.AddPlacemark(lat_lng, {
                             title : title,
                             icon:'images/markers/station-alzarin-512x512.png',
@@ -263,6 +266,7 @@ angular.module('yangontrains.controllers', [])
                     AppMap.DrawLine(coordinates);
                     var bounds = getOutestCoordinates(coordinates);
                     AppMap.FitBounds(bounds[0], bounds[1]); 
+                    AppMap.SetPageTitle(name);
                     $ionicLoading.show({duration:2000});
                 }
 
@@ -309,7 +313,7 @@ angular.module('yangontrains.controllers', [])
         }
     };
 
-    $scope.actionAppStorePage = function (){
+    $scope.actionOpenAppStorePage = function (){
 
         if(ENV.isCordovaApp() && ENV.isAndroid()){
             appAvailability.check(
@@ -339,6 +343,7 @@ angular.module('yangontrains.controllers', [])
     $ionicLoading.show();
     
     $scope.at_top = false;
+    $scope.show_route_results = false;
     $scope.inputs = {route_from:'',route_to:'',show_all_route:false};
     var animate = (function(toTop, focusClassName, callback){
         var top, to_top;
@@ -443,11 +448,11 @@ angular.module('yangontrains.controllers', [])
     $scope.actionStationSelected = function(row){
         $scope.show_stations_autocomplete = false;
         if($scope.current_from_or_to === 'from'){
-            $scope.inputs.route_from = row.name_mm; 
+            $scope.inputs.route_from = $rootScope.current_language == 'en' ? row.name_en : row.name_mm; 
             $scope.current_from_id = row.id;
         }
         if($scope.current_from_or_to === 'to'){
-            $scope.inputs.route_to = row.name_mm;   
+            $scope.inputs.route_to = $rootScope.current_language == 'en' ? row.name_en : row.name_mm; 
             $scope.current_to_id = row.id;
         }
 
@@ -486,14 +491,18 @@ angular.module('yangontrains.controllers', [])
         var from_station = $scope.from_station = JsonDB.GetRowByID('stations', from_id);
         var to_station = $scope.to_station = JsonDB.GetRowByID('stations', to_id);
 
-        $scope.result_title  = '';
-        $scope.result_title += ($rootScope.current_language == 'en') ? 'from ' : '';
-        $scope.result_title += (($rootScope.current_language == 'en') && from_station.name_en) ? from_station.name_en : (from_station.name_mm) ? from_station.name_mm : from_station.name_en;
-        $scope.result_title += ($rootScope.current_language == 'mm') ? ' မွ ' : '';
+        $scope.get_results_title = function(){
+            var result_title  = '';
+            result_title += ($rootScope.current_language == 'en') ? 'from ' : '';
+            result_title += (($rootScope.current_language == 'en') && from_station.name_en) ? from_station.name_en : (from_station.name_mm) ? from_station.name_mm : from_station.name_en;
+            result_title += ($rootScope.current_language == 'mm') ? ' မွ ' : '';
 
-        $scope.result_title += ($rootScope.current_language == 'en') ? ' to ' : '';
-        $scope.result_title += (($rootScope.current_language == 'en') && to_station.name_en) ? to_station.name_en : (to_station.name_mm) ? to_station.name_mm : to_station.name_en;
-        $scope.result_title += ($rootScope.current_language == 'mm') ? ' ထိ' : '';
+            result_title += ($rootScope.current_language == 'en') ? ' to ' : '';
+            result_title += (($rootScope.current_language == 'en') && to_station.name_en) ? to_station.name_en : (to_station.name_mm) ? to_station.name_mm : to_station.name_en;
+            result_title += ($rootScope.current_language == 'mm') ? ' ထိ' : '';
+            return result_title;
+        }
+        
 
         if($scope.current_from_id === $scope.current_to_id){
             $scope.data.routes = [];

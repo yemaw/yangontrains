@@ -5,15 +5,15 @@ navigation history that also transitions its views in and out.
 -->
 <ion-tabs class="tabs-icon-top tabs-color-active-positive">
 
-  <ion-tab title="{{ parseConfig.get('txt_RoutesTabTitle_'+current_language) }}" icon-off="icon-route-off" icon-on="icon-route-on" href="#/yangontrains/routes">
+  <ion-tab title="{{ localizedText('txt_RoutesTabTitle_'+current_language) }}" icon-off="icon-route-off" icon-on="icon-route-on" href="#/yangontrains/routes">
     <ion-nav-view name="view-routes" class="content-main"></ion-nav-view>
   </ion-tab>
 
-  <ion-tab title="{{ parseConfig.get('txt_TrainsTabTitle_'+current_language) }}" icon-off="icon-train-off" icon-on="icon-train-on" href="#/yangontrains/trains">
+  <ion-tab title="{{ localizedText('txt_TrainsTabTitle_'+current_language) }}" icon-off="icon-train-off" icon-on="icon-train-on" href="#/yangontrains/trains">
     <ion-nav-view name="view-trains" class="content-main"></ion-nav-view>
   </ion-tab>
 
-  <ion-tab title="{{ parseConfig.get('txt_StationsTabTitle_'+current_language) }}" icon-off="icon-station-off" icon-on="icon-station-on" href="#/yangontrains/stations">
+  <ion-tab title="{{ localizedText('txt_StationsTabTitle_'+current_language) }}" icon-off="icon-station-off" icon-on="icon-station-on" href="#/yangontrains/stations">
     <ion-nav-view name="view-stations" class="content-main"></ion-nav-view>
   </ion-tab>
 

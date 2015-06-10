@@ -3,7 +3,7 @@
       <div class="buttons">
         <button class="button icon ion-map bar-icon-left" ng-click="actionOpenMap()"></button>
       </div>
-      <h1 class="title">{{ parseConfig.get('txt_RoutesPageTitle_'+current_language) }}</h1>
+      <h1 class="title">{{ localizedText('txt_RoutesPageTitle_'+current_language) }}</h1>
       <div class="buttons">
         <button class="button icon ion-levels bar-icon-right" ng-click="actionOpenSetting()"></button>
       </div>
@@ -38,11 +38,11 @@
 	<ion-content ng-show="show_route_results" class="route-header" has-bouncing="false">
 		<table>
 			<tr>
-				<td class="route-title">{{result_title}}</td>
+				<td class="route-title">{{get_results_title()}}</td>
 				<td class="adjust-toggle">
 					<table>
 						<tr>
-							<td class="showall-toggle-label">{{ parseConfig.get('txt_ShowAllPath_'+current_language) }}</td>
+							<td class="showall-toggle-label">{{ localizedText('txt_ShowAllPath_'+current_language) }}</td>
 							<td>
 								<label class="toggle toggle-dark">
 							       <input type="checkbox" ng-check="inputs.show_all_route" ng-model="inputs.show_all_route" ng-change="showAllRouteInputChanged()">
@@ -85,7 +85,12 @@
 					<i class="icon ion-chevron-right icon-accessory"></i>
 			</ion-item>
 		</ion-list>
-		<div ng-show="data.routes.length > 1 && data.have_trains_in_service_time === false">No Data .. doing this</div>
+		<div class="no-trains-wrapper" ng-show="data.routes.length > 1 && data.have_trains_in_service_time === false">
+			<div class="no-trains-txt">{{(current_language == 'en') ? 'No More Train Service For Today' : 'ယေန႔အတြက္ ထြက္ရန္ရထား မရွိေတာ့ပါ။'}}</div>
+		</div>
+		<div class="no-trains-wrapper" ng-show="data.routes.length === 0 && show_route_results">
+			<div class="no-trains-txt">{{(current_language == 'en') ? 'No Direct Train Service Available' : 'တိုက္႐ိုက္ ေရာက္ရွိႏိုင္ေသာ ရထားမရွိပါ။'}}</div>
+		</div>
   	</ion-content>
 
 	<ion-content ng-show="show_stations_autocomplete" class="stations-autocomplete-wrapper">
