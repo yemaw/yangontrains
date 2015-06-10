@@ -470,6 +470,7 @@ angular.module('yangontrains.controllers', [])
 
 
     var searchRoute = (function(){
+
         var pathOrderSorter = function(a,b){
             a = a.path_order;
             b = b.path_order;
@@ -490,7 +491,7 @@ angular.module('yangontrains.controllers', [])
         var to_id = $scope.current_to_id;
         var from_station = $scope.from_station = JsonDB.GetRowByID('stations', from_id);
         var to_station = $scope.to_station = JsonDB.GetRowByID('stations', to_id);
-
+        
         $scope.get_results_title = function(){
             var result_title  = '';
             result_title += ($rootScope.current_language == 'en') ? 'from ' : '';

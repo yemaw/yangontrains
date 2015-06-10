@@ -16,21 +16,22 @@
 				English
 				<i ng-if="current_language == 'en'" class="icon ion-ios-checkmark-empty"></i>
 			</ion-item>
-
-			<br />
+		</div>
+		<div class="list list-inset">
 			<div class="item item-divider">Support</div>
 			<ion-item class="item item-icon-right" ng-click="actionOpenFacebookPage()">Facebook <i class="icon ion-social-facebook-outline adjust-item-right-icon-1"></i><i class="icon ion-chevron-right icon-accessory"></i></ion-item>
 			<ion-item class="item item-icon-right" ng-click="actionOpenAppStorePage()">
-			{{ screen_type == 'ios' ? 'Rate on App Store' : (platform == 'android') ? 'Rate on Play Store' : 'Rate this app'}}
+			{{ platform == 'ios' ? 'Rate on App Store' : (platform == 'android') ? 'Rate on Play Store' : 'Rate this app'}}
 			<i class="icon ion-ios-star-outline adjust-item-right-icon-2"></i><i class="icon ion-chevron-right icon-accessory"></i></ion-item>
-
+		</div>
+		<div class="list list-inset">
 			<div class="item item-divider">About</div>
-			<div class="item">App Version <span class="item-note">{{app_version}}</span></div>
-			<div class="item">DB Version <span class="item-note">{{localConfigs.get('CURRENT_DB_VERSION', '1')}}</div>
-
-			<div style="padding:10px;">
-				{{txt_about}}
-			</div>
+			<ion-item class="item">App Version <span class="item-note">{{app_version}}</span></ion-item>
+			<ion-item class="item">Database Version <span class="item-note">{{localConfig.get('CURRENT_DB_VERSION', '1')}}</ion-item>
+			<ion-item class="item">Database Last Update <span class="item-note">{{localConfig.get('CURRENT_DB_VERSION', '1')}}</ion-item>
+		</div>
+		<div class="list list-inset about-txt">
+			{{txt_about}}
 		</div>
 	</ion-content>
 </ion-modal-view>

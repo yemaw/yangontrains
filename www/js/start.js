@@ -101,8 +101,14 @@ function addPlatformSpecificClasses(){
 }
 
 $(document).ready(function(){
-    ENV = EnvironmentDetector();
+
+    ENV = new EnvironmentDetector();
     addPlatformSpecificClasses();
+
+    Parse.Analytics.track('AppOpen', {
+        platform: ENV.getScreenType()
+    });
+    
 });
 
 document.addEventListener("deviceready", function(){

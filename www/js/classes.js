@@ -381,36 +381,42 @@ var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
 
 var EnvironmentDetector = (function(){
     
-    var screenType = '';
-    try{
-        //detect device type with js
-        screenType = (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : null;    
-    } catch(e){}
-    
-    return {
-        getScreenType: function(){
-            try{
-                return (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : null;    
-            } catch(e){}
-            return null;
-        },
-        isCordovaApp: function(){
-            return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
-        },
-        isWeb : function(){
-            return screenType ? false : true;
-        },
-        /*isIPhone : screenType && screenType.toLowerCase() === 'iphone',
-        isIPad : screenType && screenType.toLowerCase() === 'ipad',*/
-        isIOS : function(){
-            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
-        },
-        isAndroid : function(){
-            return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'android';
-        },
-        /*platformVersion: (window.device && window.device.version) ? window.device.version : null,
-        model: (window.device && window.device.model) ? window.device.model : null,*/
+    var $this = this;
+
+    $this.getScreenType =  function(){
+        try{
+            return (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : "Web";    
+        } catch(e){}
+        return null;
     };
+    
+    $this.isCordovaApp =  function(){
+        return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
+    };
+    
+    $this.isWeb  =  function(){
+        return !$this.isCordovaApp();
+    };
+
+    /*isIPhone : screenType && screenType.toLowerCase() === 'iphone',
+    isIPad : screenType && screenType.toLowerCase() === 'ipad',*/
+
+    $this.isIOS  =  function(){
+        return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
+    };
+    
+    $this.isAndroid  =  function(){
+        return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'android';
+    };
+    
+    /*platformVersion: (window.device && window.device.version) ? window.device.version : null,
+    model: (window.device && window.device.model) ? window.device.model : null,*/
+    
+    $this.getPlatform = function(){
+        return $this.isIOS ? 'ios' : $this.isAndroid ? 'android' : $this.isWeb ? 'web' : '';
+    };
+
+    return $this;
 });
 
 var LocalSyncFile = (function(filepath, url){
