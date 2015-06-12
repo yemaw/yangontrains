@@ -28,7 +28,7 @@ var LocalConfigClass = (function (prefixIn, defaultsIn){
     };
 });
 
-var ParseConfigClass = (function (defaultsIn){
+var ParseConfigWrapperClass = (function (defaultsIn){
 
     var defaults = defaultsIn || {};
     
@@ -75,7 +75,7 @@ var LocalizationClass = (function(values){
     });
 });
 
-var DatasetReader = (function (datasetIn){
+var DatasetReaderClass = (function (datasetIn){
     
     var dataset = datasetIn;
     return {
@@ -178,7 +178,7 @@ var DatasetReader = (function (datasetIn){
     }
 });
 
-var GoogleMapClass = (function(configs){
+var GoogleMapWrapperClass = (function(configs){
     "use strict";   
     
     if(!configs || !configs.map_div){

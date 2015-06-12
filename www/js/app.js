@@ -1,7 +1,6 @@
 
 //App
 angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrains.services', 'yangontrains.directives'])
-.constant('APP_VERSION', '1.0' )
 .config(function($stateProvider, $urlRouterProvider) {
     
     $stateProvider
@@ -127,7 +126,7 @@ angular.module('yangontrains', ['ionic', 'yangontrains.controllers', 'yangontrai
 
 //Controllers
 angular.module('yangontrains.controllers', [])
-.controller('YangonTrainsController', function(APP_VERSION, $scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading ) {
+.controller('YangonTrainsController', function($scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, $ionicPopup ) {
 
     
     $scope.modals = {};
@@ -138,7 +137,7 @@ angular.module('yangontrains.controllers', [])
     $rootScope.parseConfig = ParseConfig;
     $rootScope.localConfig = LocalConfig;
     $rootScope.localizedText = LocalizedText;
-    $rootScope.app_version = parseFloat(APP_VERSION);
+    $rootScope.app_version = window.APP_VERSION;
     $rootScope.current_language = LocalConfig.get('language', 'mm');
     $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
 
@@ -209,7 +208,7 @@ angular.module('yangontrains.controllers', [])
             $scope.modals.map.show();
 
             loadGoogleMapAPI( 'AIzaSyBbKPpsv8iE4lTFY2ndSKykCXUZFZvu-Ro',  function(){
-                var AppMap = new GoogleMapClass({map_div:'map'});
+                var AppMap = new GoogleMapWrapperClass({map_div:'map'});
 
                 if(!what){
                     $scope.data.stations = JsonDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
@@ -338,6 +337,26 @@ angular.module('yangontrains.controllers', [])
         $rootScope.current_language = LocalConfig.get('language', 'mm');
         $rootScope.$broadcast("current_language_changed");
     };
+
+    setTimeout(function(){
+        if(window.APP_VERSION_CODE < ParseConfig.get('APP_LATEST_VERSION_CODE', 1)){
+            $ionicPopup.show({
+                title: LocalizedText('txt_UpdatePopupTitle_'+LocalConfig.get('language', 'mm')),
+                template: LocalizedText('txt_UpdatePopupDescription_'+LocalConfig.get('language', 'mm')),
+                scope: $scope,
+                buttons: [
+                    { text: LocalizedText('txt_UpdatePopupCancle_'+LocalConfig.get('language', 'mm')) },
+                    {
+                        text: '<b>'+LocalizedText('txt_UpdatePopupYes_'+LocalConfig.get('language', 'mm'))+'</b>',
+                        type: 'button-balanced',
+                        onTap: function(e) {
+                            $scope.actionOpenAppStorePage();
+                        }
+                    }
+                ]
+              });
+        }    
+    }, 3000);
 })
 .controller('RoutesController', function($scope, $rootScope, $ionicLoading) {
     $ionicLoading.show();
@@ -502,7 +521,7 @@ angular.module('yangontrains.controllers', [])
             result_title += (($rootScope.current_language == 'en') && to_station.name_en) ? to_station.name_en : (to_station.name_mm) ? to_station.name_mm : to_station.name_en;
             result_title += ($rootScope.current_language == 'mm') ? ' ထိ' : '';
             return result_title;
-        }
+        };
         
 
         if($scope.current_from_id === $scope.current_to_id){
@@ -698,10 +717,6 @@ angular.module('yangontrains.controllers', [])
 
 //Services
 angular.module('yangontrains.services', [])
-/*.service('JsonDB', function($http){
-    return new DatasetReader(yangontrains_data);
-});*/
-
 
 //Directives
 angular.module('yangontrains.directives', [])
