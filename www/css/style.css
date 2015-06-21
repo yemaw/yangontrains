@@ -140,7 +140,7 @@ body *{font-family: 'ZawGyi' !important;}
 .no-trains-wrapper{width:100%;min-height:300px;display:table;}
 .no-trains-txt{width:100%;height:100%;display:table-cell;vertical-align: middle;text-align: center;color:#b0b0b0;font-weight: bold;}
 .about-txt {padding:5px;}
-
+.setting-page-title {padding-left:5px;}
 
 .btn-clear{
   position: absolute;

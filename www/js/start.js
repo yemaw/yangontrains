@@ -3,28 +3,26 @@ window.APP_VERSION_CODE = 2;
 
 Parse.initialize('F5PDVVr50MdBrdBTQqp5fuksYRixEIX4GE0gkeK7','rdiBqEdXqKZ2GuTEyvmRsIEc2lanobhTh3rScSDM');
 
-LocalConfig = new LocalConfigClass('setting', {
-    'CURRENT_DB_VERSION': 1
-});
-ParseConfig = new ParseConfigWrapperClass({
-    'CURRENT_DB_VERSION':1,
+window.LocalConfig = new LocalConfigClass('setting');
+window.ParseConfig = new ParseConfigWrapperClass({
 
     //Links
-    'link_FacebookPageLink_web'  : 'https://www.facebook.com/807409185947603',
-    'link_FacebookPageLink_ios'  : 'fb://page?id=807409185947603',
-    'link_FacebookPageLink_android'  : 'fb://page?id=807409185947603',
+    'link_JsonDBDownloadURL': 'http://api.yemaw.me/yangontrains/download/json.php',
+
+    'link_FacebookPageLink'  : 'https://www.facebook.com/807409185947603',
     
     'link_AppStoreLink_web' : 'https://play.google.com/store/apps/details?id=me.yemaw.yangontrains&hl=en',
     'link_AppStoreLink_ios' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
-    'link_AppStoreLink_android' : 'market://details?id=com.theinhtikeaung.yangonbuses',
+    'link_AppStoreLink_android' : 'market://details?id=me.yemaw.yangontrains',
 
+    //Keys
+    'key_GATrackingID_mobile' : 'UA-54766351-2', 
+    'key_GATrackingID_web' : 'UA-54766351-3',
+    
     //Others
-    /*'txt_ShowAllPath_en' : 'Show All',
-    'txt_ShowAllPath_mm' : 'Show All',*/
-
     'txt_About' : 'Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။',
 });
-LocalizedText = new LocalizationClass({
+window.LocalizedText = new LocalizationClass({
     //Tab Titles
     'txt_RoutesTabTitle_en'   : 'Route', 
     'txt_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
@@ -62,11 +60,11 @@ LocalizedText = new LocalizationClass({
     'txt_UpdatePopupDescription_en' : 'A new version of this app is available. Do you want to update now?', 'txt_UpdatePopupDescription_mm' : 'ယခု Dowload ျပဳလုပ္လိုပါသလား?',
     'txt_UpdatePopupCancle_en' : 'Later', 'txt_UpdatePopupCancle_mm' : 'ေနာက္မွ', 
     'txt_UpdatePopupYes_en' : 'Dowload', 'txt_UpdatePopupYes_mm' : 'အင္း'
-
 });
 
-JsonDataFile = new LocalSyncFile('yangontrains_data.json', 'http://api.yemaw.me/yangontrains/download/json.php');
-JsonDB = new DatasetReaderClass(yangontrains_data);
+window.ENV = new EnvironmentDetector();
+
+window.JsonDB = new DatasetReaderClass(yangontrains_data);
 
 
 function addPlatformSpecificClasses(){
@@ -83,17 +81,23 @@ function addPlatformSpecificClasses(){
 
 $(document).ready(function(){
 
-    ENV = new EnvironmentDetector();
     addPlatformSpecificClasses();
 
     /*Parse.Analytics.track('AppOpen', {
         platform: ENV.getScreenType()
     });*/
+    if(!window.GA && ENV.isWeb()){
+        window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_web'),'web');    
+    }
 
 });
 
 document.addEventListener("deviceready", function(){
-    
+    if(ENV.isWeb()){
+        return;
+    }
+
+    JsonDataFile = new LocalSyncFile('yangontrains_data.json', ParseConfig.get('link_JsonDBDownloadURL'));
     addPlatformSpecificClasses();
 
     if(!LocalConfig.get('APPLICATION_RUN_ONCE')){//application havn't run first time before. copy build in data into data file (in document dir)
@@ -114,7 +118,7 @@ document.addEventListener("deviceready", function(){
             if(typeof device !== 'undefined' && typeof cordova !== 'undefined'){//Ensure this is cordova app
                 var latest_db_version = parseInt(ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
                 var current_db_version = parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
-                var download_url = ParseConfig.get('DB_DOWNLOAD_URL', 'http://api.yemaw.me/yangontrains/download/json.php');
+                var download_url = ParseConfig.get('link_JsonDBDownloadURL');
                 if (latest_db_version > current_db_version) {
                     //Database Update Process
                     var filepath = 'yangontrains_data.json';
@@ -138,6 +142,13 @@ document.addEventListener("deviceready", function(){
         };
         CheckDBVersion();
     },3000);//wait for parse config to loaded lates db number
-
+    
+    //Google Analytics
+    if(window.analytics){
+        window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_mobile'), ENV.getPlatform());
+    } else {
+        //alert('Gooele Analytics not loaded');
+    }
+    
 }, false);
 

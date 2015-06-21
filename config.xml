@@ -19,7 +19,9 @@
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="false"/>
   </feature>
-  
+  <allow-navigation href="*" />
+  <allow-intent href="*://*api.parse.com/*"/>
+  <allow-intent href="*://*.yemaw.me/*"/>
   <platform name="ios">
     <icon src="resources/ios/icon/Icon.png" width="57" height="57"/>
     <icon src="resources/ios/icon/Icon@2x.png" width="114" height="114"/>
@@ -69,3 +71,10 @@
     <splash src="resources/android/splash/drawable-port-xxxhdpi-screen.png" density="port-xxxhdpi"/>
   </platform>
 </widget>
+
+<!--
+  For Android. 
+  put inside <application> tag
+  <meta-data android:name="com.parse.push.gcm_sender_id" android:value="id:YOUR_SENDER_IDs" />
+
+  -->

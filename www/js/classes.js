@@ -31,17 +31,16 @@ var LocalConfigClass = (function (prefixIn, defaultsIn){
 var ParseConfigWrapperClass = (function (defaultsIn){
 
     var defaults = defaultsIn || {};
-    
-    Parse.Config.get();
+    Parse.Config.get().then(function(config){}, function(err){});
 
-    var configRefreshInterval = 12 * 60 * 60 * 1000;
+    var configRefreshInterval = 60 * 1000;//12 * 60 * 60 * 1000;
 
     if(typeof parse_refresh_interval !== 'undefined' && parse_refresh_interval !== null){
         clearTimeout(parse_refresh_interval);
     }
 
     window.parse_refresh_interval = setTimeout(function(){
-        Parse.Config.get();
+        Parse.Config.get().then(function(config){}, function(){});
     },configRefreshInterval);
     
     return {
@@ -413,7 +412,7 @@ var EnvironmentDetector = (function(){
     model: (window.device && window.device.model) ? window.device.model : null,*/
     
     $this.getPlatform = function(){
-        return $this.isIOS ? 'ios' : $this.isAndroid ? 'android' : $this.isWeb ? 'web' : '';
+        return $this.isIOS() ? 'ios' : $this.isAndroid() ? 'android' : $this.isWeb() ? 'web' : '';
     };
 
     return $this;
@@ -485,6 +484,40 @@ var LocalSyncFile = (function(filepath, url){
     };
     
 
+    return $this;
+});
+
+/*
+ Dependencies = https://github.com/danwilson/google-analytics-plugin
+ */
+
+var GoogleUniversalAnalyticsWrapper = (function(trackingId, platform){
+    var $this = this,
+        $analytics;
+        
+    $this.platform = platform;
+
+    if(platform === 'web'){
+
+    } else {
+        if(window.analytics){
+            $analytics = window.analytics;
+            $analytics.startTrackerWithId(trackingId);   
+        }
+    }
+
+    $this.trackView = function(viewName){
+        if((platform === 'ios' || platform === 'android') && $analytics && typeof $analytics.trackView === 'function'){
+            $analytics.trackView(viewName+'.'+platform);
+        }
+    };
+
+    $this.trackEvent = function(category, action, label, value){
+        if((platform === 'ios' || platform === 'android') && $analytics && typeof $analytics.trackEvent === 'function'){
+            $analytics.trackEvent(category, action, label, value);
+        }
+    };
+    
     return $this;
 });
 
