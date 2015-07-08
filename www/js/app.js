@@ -208,7 +208,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             $ionicLoading.show();
             $scope.modals.map = modal;
             $scope.modals.map.show();
-
+            
             loadGoogleMapAPI( 'AIzaSyBbKPpsv8iE4lTFY2ndSKykCXUZFZvu-Ro',  function(){
                 var AppMap = new GoogleMapWrapperClass({map_div:'map'});
 
@@ -708,7 +708,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         $ionicLoading.hide();
     },1000);
 })
-.controller('StationController', function($scope, $stateParams, $rootScope ) {
+.controller('StationController', function($scope, $rootScope, $stateParams ) {
 
     $scope.$on('$ionicView.enter', function(viewInfo, state){
         GA.trackView('station');
