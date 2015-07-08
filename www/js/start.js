@@ -10,26 +10,26 @@ window.ParseConfig = new ParseConfigWrapperClass({
     'link_JsonDBDownloadURL': 'http://api.yemaw.me/yangontrains/download/json.php',
 
     'link_FacebookPageLink'  : 'https://www.facebook.com/807409185947603',
-    
+
     'link_AppStoreLink_web' : 'https://play.google.com/store/apps/details?id=me.yemaw.yangontrains&hl=en',
     'link_AppStoreLink_ios' : 'https://itunes.apple.com/us/app/yangon-trains/id931205785?ls=1&mt=8',
     'link_AppStoreLink_android' : 'market://details?id=me.yemaw.yangontrains',
 
     //Keys
-    'key_GATrackingID_mobile' : 'UA-54766351-2', 
+    'key_GATrackingID_mobile' : 'UA-54766351-2',
     'key_GATrackingID_web' : 'UA-54766351-3',
-    
+
     //Others
     'txt_About' : 'Yangon Trains Application သည္ ရန္ကုန္ၿမိဳ႕တြင္း ၿမိဳ႔ပါတ္ရထားျဖင့္ သြားလာရ လြယ္ကူႏိုင္ေစရန္ ေရးသားထားျခင္း ျဖစ္သည္။ ရထား၀င္ခ်ိန္၊ ထြက္ခ်ိန္မ်ားမွာ ျမန္မာ့မီးရထားမွ စံသတ္မွတ္ထားေသာ အခ်ိန္မ်ားသာျဖစ္ၿပီး အမွန္တကယ္၀င္ခ်ိန္ ထြက္ခ်ိန္တြင္ မိနစ္အနည္းငယ္ ေနာက္က်ႏိုင္ပါသည္။',
 });
 window.LocalizedText = new LocalizationClass({
     //Tab Titles
-    'txt_RoutesTabTitle_en'   : 'Route', 
+    'txt_RoutesTabTitle_en'   : 'Routes',
     'txt_RoutesTabTitle_mm'   : 'လမ္းေၾကာင္းရွာ',
 
     'txt_TrainsTabTitle_en'   : 'Trains',
     'txt_TrainsTabTitle_mm'   : 'ရထားမ်ား',
-    
+
     'txt_StationsTabTitle_en' : 'Stations',
     'txt_StationsTabTitle_mm' : 'ဘူတာမ်ား',
 
@@ -38,13 +38,13 @@ window.LocalizedText = new LocalizationClass({
     'txt_RoutesPageTitle_mm'   : 'Yangon Trains',
 
     'txt_TrainsPageTitle_en'   : 'Yangon Trains',
-    'txt_TrainsPageTitle_mm'   : 'Yangon Trains', 
+    'txt_TrainsPageTitle_mm'   : 'Yangon Trains',
 
     'txt_StationsPageTitle_en' : 'Yangon Trains',
     'txt_StationsPageTitle_mm' : 'Yangon Trains',
-    
+
     'txt_SettingsPageTitle_en' : 'Settings' ,
-    'txt_SettingsPageTitle_mm' : 'Settings', 
+    'txt_SettingsPageTitle_mm' : 'Settings',
 
     'txt_TrainPageTitle_en'   : 'Yangon Trains',
     'txt_TrainPageTitle_mm'   : 'Yangon Trains',
@@ -58,7 +58,7 @@ window.LocalizedText = new LocalizationClass({
 
     'txt_UpdatePopupTitle_en' : 'Update available', 'txt_UpdatePopupTitle_mm' : 'Update အသစ္ရပါျပီ။',
     'txt_UpdatePopupDescription_en' : 'A new version of this app is available. Do you want to update now?', 'txt_UpdatePopupDescription_mm' : 'ယခု Dowload ျပဳလုပ္လိုပါသလား?',
-    'txt_UpdatePopupCancle_en' : 'Later', 'txt_UpdatePopupCancle_mm' : 'ေနာက္မွ', 
+    'txt_UpdatePopupCancle_en' : 'Later', 'txt_UpdatePopupCancle_mm' : 'ေနာက္မွ',
     'txt_UpdatePopupYes_en' : 'Dowload', 'txt_UpdatePopupYes_mm' : 'အင္း'
 });
 
@@ -87,7 +87,7 @@ $(document).ready(function(){
         platform: ENV.getScreenType()
     });*/
     if(!window.GA && ENV.isWeb()){
-        window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_web'),'web');    
+        window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_web'),'web');
     }
 
 });
@@ -112,9 +112,9 @@ document.addEventListener("deviceready", function(){
         },function(){});
     }
 
-    //Check Database version 
+    //Check Database version
     setTimeout(function(){
-        window.CheckDBVersion = function(){ 
+        window.CheckDBVersion = function(){
             if(typeof device !== 'undefined' && typeof cordova !== 'undefined'){//Ensure this is cordova app
                 var latest_db_version = parseInt(ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
                 var current_db_version = parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
@@ -127,11 +127,11 @@ document.addEventListener("deviceready", function(){
                         LocalConfig.set('DB_FILEPATH', filepath);
                         JsonDataFile.ReadAsTextFile(function(data){
                             JsonDB = new DatasetReaderClass(JSON.parse(data));//immediately update the local data copy
-                            alert('Database updated to version '+latest_db_version);    
+                            alert('Database updated to version '+latest_db_version);
                         },function(){
 
                         });
-                        
+
                     }, function(){
                         alert('Database failed to update.');
                     });
@@ -142,13 +142,12 @@ document.addEventListener("deviceready", function(){
         };
         CheckDBVersion();
     },3000);//wait for parse config to loaded lates db number
-    
+
     //Google Analytics
     if(window.analytics){
         window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_mobile'), ENV.getPlatform());
     } else {
         //alert('Gooele Analytics not loaded');
     }
-    
-}, false);
 
+}, false);
