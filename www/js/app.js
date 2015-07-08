@@ -1,8 +1,7 @@
-
 //App
 angular.module('yangontrains', ['ionic', 'myDirectives'])
 .config(function($stateProvider, $urlRouterProvider) {
-    
+
     $stateProvider
     .state('yangontrains', {
         url: "/yangontrains",
@@ -64,11 +63,11 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             }
         }
     });
-    
+
     $urlRouterProvider.otherwise('/yangontrains/routes');
 })
 .run(function($ionicPlatform, $rootScope) {
-    
+
     $rootScope.safeApply = function(fn) {
         var phase = this.$root.$$phase;
         if(phase == '$apply' || phase == '$digest') {
@@ -107,7 +106,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
         var duration = hours>0 ? hours+' h ' : '';
         duration+= minutes+' m ';
-      
+
         return duration;
     };
 
@@ -125,10 +124,10 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
 //Controllers
 .controller('YangonTrainsController', function($scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, $ionicPopup ) {
-    
+
     $scope.modals = {};
     $scope.data = {};
-    
+
     $scope.txt_about = ParseConfig.get('txt_About');
 
     $rootScope.parseConfig = ParseConfig;
@@ -143,9 +142,9 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         $('.searchbox, .from-textbox, .to-textbox').blur();
 
         if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
-            cordova.plugins.Keyboard.close();    
+            cordova.plugins.Keyboard.close();
         }
-        
+
     };
 
     $ionicModal.fromTemplateUrl('templates/view-setting.html', {
@@ -156,7 +155,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     });
 
     $scope.actionOpenSetting = function(){
-        
+
         GA.trackView('settings');
 
         $scope.modals.setting.show();
@@ -166,7 +165,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     };
 
     $scope.actionOpenMap = function(what, data, data2){
-        
+
         GA.trackView('map');
 
         var getOutestCoordinates = function(coordinates){
@@ -195,9 +194,9 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                 if(!lng_biggest || lat_lng[1] > lng_biggest){
                     lng_biggest = lat_lng[1];
                 }
-                
+
             }
-            
+
             return [[lat_smallest, lng_smallest],[lat_biggest, lng_biggest]];
         };
 
@@ -208,7 +207,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             $ionicLoading.show();
             $scope.modals.map = modal;
             $scope.modals.map.show();
-            
+
             loadGoogleMapAPI( 'AIzaSyBbKPpsv8iE4lTFY2ndSKykCXUZFZvu-Ro',  function(){
                 var AppMap = new GoogleMapWrapperClass({map_div:'map'});
 
@@ -216,7 +215,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                     $scope.data.stations = JsonDB.GetRowsContains('stations', $scope.data.search_text, ['name_en', 'name_mm']);
 
                     var l = $scope.data.stations.length, list = [];
-                    
+
                     for(var i=0;i<l;i++){
                         var station = $scope.data.stations[i];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
@@ -227,7 +226,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                             animation: google.maps.Animation.DROP,
                         },{
                             content:'<h5>'+title+'</h5>'
-                        }); 
+                        });
                     }
                     AppMap.SetPageTitle(LocalConfig.get('language','mm') == 'en' ? 'Stations' : 'ဘူတာ႐ံုမ်ား');
                     $ionicLoading.show({duration:4000});
@@ -240,7 +239,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                     },{
                         content:'<h5>'+name+'</h5>'
                     });
-                    
+
                     var lat_lng = data.lat_long ? data.lat_long.split(',') : data.lat_lng.split(',');
                     marker.infowindow && marker.infowindow.open(AppMap.GetMap(), marker);
                     AppMap.SetCenter((lat_lng[0]).trim(), (lat_lng[1]).trim());
@@ -250,7 +249,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                 } else if (what === 'train' && data && data2){
                     var name = LocalConfig.get('language','mm') == 'en' && data2['name_en'] ? data2['name_en'] : data2['name_mm'];
                     var l = data.length, coordinates = [];
-                    
+
                     for(var i=0;i<l;i++){
                         var station = data[i]['station'];
                         var lat_lng = station.lat_long ? station.lat_long : station.lat_lng ? station.lat_lng : ''; //just in case lat_long is as lat_lng
@@ -261,12 +260,12 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                             animation: google.maps.Animation.DROP,
                         },{
                             content:'<h5>'+title+'</h5>'
-                        }); 
+                        });
                         coordinates.push(lat_lng);
-                    }    
+                    }
                     AppMap.DrawLine(coordinates);
                     var bounds = getOutestCoordinates(coordinates);
-                    AppMap.FitBounds(bounds[0], bounds[1]); 
+                    AppMap.FitBounds(bounds[0], bounds[1]);
                     AppMap.SetPageTitle(name);
                     $ionicLoading.show({duration:2000});
                 }
@@ -274,7 +273,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             }, function(){
                 $ionicLoading.hide();
             }, window);
-            
+
 
         });
     };
@@ -292,7 +291,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         if(ENV.isCordovaApp() && ENV.isAndroid()){
             appAvailability.check(
                 'com.facebook.katana',
-                function() { 
+                function() {
                     window.open(ParseConfig.get('link_FacebookPageLink'), '_system');
                 },
                 function() {
@@ -305,7 +304,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                 function() {
                     window.open(ParseConfig.get('link_FacebookPageLink'), '_system');
                 },
-                function() {  
+                function() {
                     window.open(ParseConfig.get('link_FacebookPageLink'), '_system');
                 }
             );
@@ -319,7 +318,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         if(ENV.isCordovaApp() && ENV.isAndroid()){
             appAvailability.check(
                 'com.android.vending',
-                function() { 
+                function() {
                     window.open(ParseConfig.get('link_AppStoreLink_android'), '_system');
                 },
                 function() {
@@ -357,12 +356,12 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                     }
                 ]
               });
-        }    
+        }
     }, 3000);
 })
 .controller('RoutesController', function($scope, $rootScope, $ionicLoading) {
     $ionicLoading.show();
-    
+
     $scope.$on('$ionicView.enter', function(viewInfo, state){
         GA.trackView('routes');
     });
@@ -387,7 +386,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             if(toTop === true && focusClassName){
                 $('.'+focusClassName).focus();
             }
-            
+
             if(typeof callback === 'function'){
                 callback();
             }
@@ -398,16 +397,16 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
     var filterStations = (function(keyword){
         if(keyword){
-            $scope.data.stations = JsonDB.GetRowsContains('stations', keyword, ['name_en', 'name_mm']); 
+            $scope.data.stations = JsonDB.GetRowsContains('stations', keyword, ['name_en', 'name_mm']);
         } else {
-            $scope.data.stations = JsonDB.GetAll('stations');   
+            $scope.data.stations = JsonDB.GetAll('stations');
         }
         $scope.show_stations_autocomplete = true;
         $scope.safeApply();
     });
 
     $scope.inputsGetFocus = function(focusClassName, from_or_to){
-        
+
         if(from_or_to === 'from') {
             $scope.inputs.route_from = '';
             $scope.current_from_id = '';
@@ -428,11 +427,11 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             $scope.safeApply();
             animate(true, focusClassName,function(){
                 filterStations();
-            }); 
+            });
         } else {
             filterStations();
         }
-        
+
     };
     $scope.inputsGetBlur = function(from_or_to){
         $scope.data.stations = [];
@@ -449,13 +448,13 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         if($scope.current_from_id && $scope.current_to_id){
             $scope.show_route_results = true;
         }
-        
+
         $scope.safeApply();
 
         if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
-            cordova.plugins.Keyboard.close();    
+            cordova.plugins.Keyboard.close();
         }
-        
+
     };
 
     $scope.actionFromTextboxKeyUp = function(focusClassName){
@@ -473,11 +472,11 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     $scope.actionStationSelected = function(row){
         $scope.show_stations_autocomplete = false;
         if($scope.current_from_or_to === 'from'){
-            $scope.inputs.route_from = $rootScope.current_language == 'en' ? row.name_en : row.name_mm; 
+            $scope.inputs.route_from = $rootScope.current_language == 'en' ? row.name_en : row.name_mm;
             $scope.current_from_id = row.id;
         }
         if($scope.current_from_or_to === 'to'){
-            $scope.inputs.route_to = $rootScope.current_language == 'en' ? row.name_en : row.name_mm; 
+            $scope.inputs.route_to = $rootScope.current_language == 'en' ? row.name_en : row.name_mm;
             $scope.current_to_id = row.id;
         }
 
@@ -485,11 +484,11 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             $scope.show_route_results = true;
             searchRoute();
         }
-        
+
         $scope.safeApply();
 
         if(ENV.isCordovaApp() && cordova.plugins.Keyboard && cordova.plugins.Keyboard.close && cordova.plugins.Keyboard.isVisible){
-            cordova.plugins.Keyboard.close();    
+            cordova.plugins.Keyboard.close();
         }
     };
 
@@ -499,14 +498,14 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         var pathOrderSorter = function(a,b){
             a = a.path_order;
             b = b.path_order;
-            
+
             if (parseInt(a) < parseInt(b)){
                 return -1;
             }
             else if (parseInt(a) > parseInt(b)){
                 return 1;
             } else {
-                return 0;    
+                return 0;
             }
         };
 
@@ -516,7 +515,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         var to_id = $scope.current_to_id;
         var from_station = $scope.from_station = JsonDB.GetRowByID('stations', from_id);
         var to_station = $scope.to_station = JsonDB.GetRowByID('stations', to_id);
-        
+
         $scope.get_results_title = function(){
             var result_title  = '';
             result_title += ($rootScope.current_language == 'en') ? 'from ' : '';
@@ -528,7 +527,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             result_title += ($rootScope.current_language == 'mm') ? ' ထိ' : '';
             return result_title;
         };
-        
+
 
         if($scope.current_from_id === $scope.current_to_id){
             $scope.data.routes = [];
@@ -539,7 +538,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
         var from_paths = JsonDB.GetRowsExact('paths', from_id,['station_id']);
         var to_paths = JsonDB.GetRowsExact('paths', to_id,['station_id']);
-        
+
         var l1= from_paths.length;
         var l2 = to_paths.length;
         var trains = [];
@@ -548,14 +547,14 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                 var fp = from_paths[i];
                 var tp = to_paths[j];
                 if( //logic
-                    (fp.train_id === tp.train_id) && 
-                    (parseInt(fp.path_order) < parseInt(tp.path_order)) 
-                  ) 
+                    (fp.train_id === tp.train_id) &&
+                    (parseInt(fp.path_order) < parseInt(tp.path_order))
+                  )
                 {
                     var train = JsonDB.GetRowByID('trains',fp.train_id);
                     var paths = JsonDB.GetRowsExact('paths', train.id,['train_id']);
                     paths = paths.sort(pathOrderSorter);//just make sure path is in order
-                    
+
                     var l3 = paths.length;
                     var found_from = false, found_to = false;
                     for(var k=0; k<l3;k++){
@@ -574,7 +573,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                     }
                     if(typeof train.from_data.departure_time === 'string' && typeof train.to_data.arrival_time === 'string'){
                         var t1 = train.from_data.departure_time.split(':');
-                        var t2 = train.to_data.arrival_time.split(':'); 
+                        var t2 = train.to_data.arrival_time.split(':');
                         if(t1.length === 2 && t2.length === 2){
                             var date1 = new Date(2000, 0, 1, parseInt(t1[0]), parseInt(t1[1])); // 9:00 AM
                             var date2 = new Date(2000, 0, 1, parseInt(t2[0]), parseInt(t2[1])); // 5:00 PM
@@ -584,18 +583,18 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
                             train.diff = date2-date1;
                             if(train.diff>0){
-                                train.duration = $rootScope.getHumanReadableDuration(train.diff);   
+                                train.duration = $rootScope.getHumanReadableDuration(train.diff);
                             } else {
                                 train.duration = '';
                             }
-                            
+
                             train.departureTime = date1;
                             train.arrivalTime   = date1;
 
                             var now = new Date();
                             var next = date1 - new Date(2000, 0, 1, now.getHours(), now.getMinutes());
                             if(next > 0){
-                                train.arriveIn = $rootScope.getHumanReadableDuration(next); 
+                                train.arriveIn = $rootScope.getHumanReadableDuration(next);
                                 train.available = true;
                                 $scope.data.have_trains_in_service_time = true;
                             } else {
@@ -608,18 +607,18 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
                 }
             }
         }
-        
+
         trains = _.sortBy(trains, 'arrivalTime');
-        
+
         $scope.data.routes = trains;
         $scope.show_route_results = true;
-        
+
         setTimeout(function(){
             $ionicLoading.hide();
         },300);
-        
+
     });
-    
+
     $scope.showAllRouteInputChanged = function(){
         $scope.safeApply();
     };
@@ -636,7 +635,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
     setTimeout(function(){
         $ionicLoading.hide();
-        animate(false); 
+        animate(false);
     },500);
 })
 .controller('TrainsController', function($scope, $rootScope, $ionicLoading ) {
@@ -657,16 +656,16 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
             var start_station = stations[0]['station'];
             var end_station   = stations[stations.length-1]['station'];
             $scope.data.trains[i]['start_station'] = ($rootScope.current_language == 'en' && start_station.name_en) ? start_station.name_en : start_station.name_mm && start_station.name_mm;
-            $scope.data.trains[i]['end_station']   = ($rootScope.current_language == 'mm' && end_station.name_mm) ? end_station.name_mm : end_station.name_en && end_station.name_en;           
+            $scope.data.trains[i]['end_station']   = ($rootScope.current_language == 'mm' && end_station.name_mm) ? end_station.name_mm : end_station.name_en && end_station.name_en;
         }
     }
 
     $scope.$on('current_language_changed',function(){
-        $scope.filterRows();        
+        $scope.filterRows();
     });
 
     $scope.filterRows();
-    
+
     setTimeout(function(){
         $ionicLoading.hide();
     },1000);
@@ -677,13 +676,13 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         GA.trackView('train');
     });
 
-    $scope.data = {};   
-    $scope.display = {};    
+    $scope.data = {};
+    $scope.display = {};
     $scope.data.train = JsonDB.GetRowByID('trains', $stateParams.id);
 
     var path = JsonDB.GetRowsExact('paths', $stateParams.id,['train_id']);
     $scope.data.path = JsonDB.JoinExact('stations', path, 'station_id', 'station');
-    
+
     $scope.safeApply();
 })
 .controller('StationsController', function($scope, $rootScope, $ionicLoading) {
@@ -699,11 +698,11 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     }
 
     $scope.$on('current_language_changed',function(){
-        $scope.filterRows();        
+        $scope.filterRows();
     });
 
     $scope.filterRows();
-    
+
     setTimeout(function(){
         $ionicLoading.hide();
     },1000);
@@ -714,10 +713,10 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         GA.trackView('station');
     });
 
-    $scope.data = {};   
-    $scope.display = {};    
+    $scope.data = {};
+    $scope.display = {};
     $scope.data.station = JsonDB.GetRowByID('stations', $stateParams.id);
-    
+
     var paths = JsonDB.GetRowsExact('paths', $stateParams.id,['station_id']);
     var l = paths.length, arrivable_paths = [];
     for(var i=0; i<l; i++){ //filter and prepare to sort by arrival time
@@ -725,7 +724,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
         if(path['arrival_time'] !== null && path['arrival_time'] !== '' && path['arrival_time'] !== 'null'){
 
-            var t1 = path['arrival_time'].split(':'), t2 = path['arrival_time'].split(':'), date; 
+            var t1 = path['arrival_time'].split(':'), t2 = path['arrival_time'].split(':'), date;
             if(t1.length === 2 && t2.length === 2){
                 date = new Date(2000, 0, 1, parseInt(t1[0]), parseInt(t1[1])); // 9:00 AM
             }
@@ -734,9 +733,9 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         }
     }
     arrivable_paths = _.sortBy(arrivable_paths, 'arrivalTime');
-    
+
     $scope.data.paths = JsonDB.JoinExact('trains', arrivable_paths, 'train_id', 'train');
-    
+
 
     $scope.safeApply();
 });
@@ -747,8 +746,8 @@ angular.module('myDirectives', [])
     return function(scope, element, attr) {
 
         element.on('touchstart', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.myTouchstart); 
+            scope.$apply(function() {
+                scope.$eval(attr.myTouchstart);
             });
         });
     };
@@ -757,10 +756,9 @@ angular.module('myDirectives', [])
     return function(scope, element, attr) {
 
         element.on('touchend', function(event) {
-            scope.$apply(function() { 
-                scope.$eval(attr.myTouchend); 
+            scope.$apply(function() {
+                scope.$eval(attr.myTouchend);
             });
         });
     };
 }]);
-
