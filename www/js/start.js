@@ -91,7 +91,10 @@ $(document).ready(function(){
     if(!window.GA && ENV.isWeb()){
         window.GA = new GoogleUniversalAnalyticsWrapper(ParseConfig.get('key_GATrackingID_web'),'web');
     }
-
+    //manual bootstrap
+    angular.element(document).ready(function() {
+        angular.bootstrap(document, ['yangontrains']);
+    });
 });
 
 document.addEventListener("deviceready", function(){
