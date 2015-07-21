@@ -127,13 +127,13 @@ document.addEventListener("deviceready", function(){
                         LocalConfig.set('DB_FILEPATH', filepath);
                         JsonDataFile.ReadAsTextFile(function(data){
                             JsonDB = new DatasetReaderClass(JSON.parse(data));//immediately update the local data copy
-                            alert('Database updated to version '+latest_db_version);
+                            $(document).trigger('show_alert',{title:'', template:'<div class="alert_body">Database successfully updated.</div>'});
                         },function(){
 
                         });
 
                     }, function(){
-                        alert('Database failed to update.');
+                        //$(document).trigger('show_alert',{title:'Database failed to update!', template:'<div class="alert_body">Database failed to update!</div>'});
                     });
                 } else {
                     //alert('No need to update DB');

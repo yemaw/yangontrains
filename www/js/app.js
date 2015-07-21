@@ -125,6 +125,10 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 //Controllers
 .controller('YangonTrainsController', function($scope, $rootScope, $ionicModal, $ionicHistory, $ionicLoading, $ionicPopup ) {
 
+    $(document).on('show_alert', function(e,data){
+        $ionicPopup.alert(data);
+    });
+
     $scope.modals = {};
     $scope.data = {};
 
