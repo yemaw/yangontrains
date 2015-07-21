@@ -26,9 +26,9 @@
 		</div>
 		<div class="list list-inset">
 			<div class="item item-divider">About</div>
-			<ion-item class="item">App Version <span class="item-note">{{app_version}}</span></ion-item>
-			<ion-item class="item">Database Version <span class="item-note">{{localConfig.get('DB_VERSION_CODE', '1')}}</ion-item>
-			<ion-item class="item">Database Last Update <span class="item-note"></ion-item>
+			<ion-item class="item">App version <span class="item-note">{{app_version}}</span></ion-item>
+			<ion-item class="item">Database version <span class="item-note">{{db_version_code}}</ion-item>
+			<ion-item class="item">Data last updated on <span class="item-note" >{{ db_release_time*1000 | date:'dd/MMM/yyyy'}}</ion-item>
 		</div>
 		<div class="list list-inset about-txt">
 			{{txt_about}}

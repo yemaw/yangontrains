@@ -138,6 +138,8 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     $rootScope.localConfig = LocalConfig;
     $rootScope.localizedText = LocalizedText;
     $rootScope.app_version = window.APP_VERSION;
+    $rootScope.db_version_code = JsonDB.GetAll('db_version_code');
+    $rootScope.db_release_time = JsonDB.GetAll('db_release_time');
     $rootScope.current_language = LocalConfig.get('language', 'mm');
     $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
 
