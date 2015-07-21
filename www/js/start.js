@@ -56,10 +56,12 @@ window.LocalizedText = new LocalizationClass({
     'txt_ShowAllPath_en' : 'Show all',
     'txt_ShowAllPath_mm' : 'Show all',
 
-    'txt_UpdatePopupTitle_en' : 'Update available', 'txt_UpdatePopupTitle_mm' : 'Update အသစ္ရပါျပီ။',
-    'txt_UpdatePopupDescription_en' : 'A new version of this app is available. Do you want to update now?', 'txt_UpdatePopupDescription_mm' : 'ယခု Dowload ျပဳလုပ္လိုပါသလား?',
-    'txt_UpdatePopupCancle_en' : 'Later', 'txt_UpdatePopupCancle_mm' : 'ေနာက္မွ',
-    'txt_UpdatePopupYes_en' : 'Dowload', 'txt_UpdatePopupYes_mm' : 'အင္း'
+    'txt_UpdatePopupTitle_en' : 'Update available',
+    'txt_UpdatePopupTitle_mm' : 'Update available',
+    'txt_UpdatePopupDescription_en' : 'A new version of this app is available. Do you want to update now?',
+    'txt_UpdatePopupDescription_mm' : 'A new version of this app is available. Do you want to update now?',
+    'txt_UpdatePopupCancle_en' : 'Later', 'txt_UpdatePopupCancle_mm' : 'Later',
+    'txt_UpdatePopupYes_en' : 'Dowload', 'txt_UpdatePopupYes_mm' : 'Download'
 });
 
 window.ENV = new EnvironmentDetector();
