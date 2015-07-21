@@ -28,21 +28,22 @@ var LocalConfigClass = (function (prefixIn, defaultsIn){
     };
 });
 
-var ParseConfigWrapperClass = (function (defaultsIn){
+var ParseConfigWrapperClass = (function (defaultsIn, pullIntervalMilliseconds){
 
     var defaults = defaultsIn || {};
     Parse.Config.get().then(function(config){}, function(err){});
-
-    var configRefreshInterval = 60 * 1000;//12 * 60 * 60 * 1000;
+    var pullIntervalMilliseconds = pullIntervalMilliseconds || 60 * 1000; //12 * 60 * 60 * 1000
 
     if(typeof parse_refresh_interval !== 'undefined' && parse_refresh_interval !== null){
         clearTimeout(parse_refresh_interval);
     }
 
-    window.parse_refresh_interval = setTimeout(function(){
-        Parse.Config.get().then(function(config){}, function(){});
-    },configRefreshInterval);
-    
+    window.parse_refresh_interval = setInterval(function(){
+        Parse.Config.get().then(function(config){
+            $(document).trigger('configs_refreshed',{});
+        }, function(){});
+    },pullIntervalMilliseconds);
+
     return {
         get:function(key, defaultValue){
             var parseValue = Parse.Config.current().get(key);
@@ -75,13 +76,13 @@ var LocalizationClass = (function(values){
 });
 
 var DatasetReaderClass = (function (datasetIn){
-    
+
     var dataset = datasetIn;
     return {
         GetAll:function(collection){
             return dataset[collection];
         },
-        
+
         GetRowsContains:function(collection, search_text, search_inside, casesensitive){
             if(!collection) {
                 return;
@@ -90,17 +91,17 @@ var DatasetReaderClass = (function (datasetIn){
             var casesensitive = casesensitive || false;
             var search_inside = search_inside || false;
             var rows = _.filter(dataset[collection],function(row){
-                
+
                 if(!search_inside) {
                     search_inside = [];
                     var keys = Object.keys(row);
                     for(var i=0; i<keys.length; i++){
                         if(row.hasOwnProperty(keys[i])){
                             search_inside.push(keys[i]);
-                        }    
+                        }
                     }
                 }
-                
+
                 for(var i=0; i<search_inside.length; i++){
                     search_text = search_text+'';
                     var search_row = row[search_inside[i]]+'';
@@ -113,7 +114,7 @@ var DatasetReaderClass = (function (datasetIn){
                     }
                 }
                 return false;
-            
+
             });
 
             return rows;
@@ -127,17 +128,17 @@ var DatasetReaderClass = (function (datasetIn){
             var casesensitive = casesensitive || false;
             var search_inside = search_inside || false;
             var rows = _.filter(dataset[collection],function(row){
-                
+
                 if(!search_inside) {
                     search_inside = [];
                     var keys = Object.keys(row);
                     for(var i=0; i<keys.length; i++){
                         if(row.hasOwnProperty(keys[i])){
                             search_inside.push(keys[i]);
-                        }    
+                        }
                     }
                 }
-                
+
                 for(var i=0; i<search_inside.length; i++){
                     search_text = search_text+'';
                     var search_row = row[search_inside[i]]+'';
@@ -150,7 +151,7 @@ var DatasetReaderClass = (function (datasetIn){
                     }
                 }
                 return false;
-            
+
             });
 
             return rows;
@@ -165,7 +166,7 @@ var DatasetReaderClass = (function (datasetIn){
                 return;
             }
             var $this = this;
-            
+
             var t = collectionObjects.length;
             for(var i =0; i<t; i++){
                 if(collectionObjects[i][of_key]){
@@ -178,11 +179,11 @@ var DatasetReaderClass = (function (datasetIn){
 });
 
 var GoogleMapWrapperClass = (function(configs){
-    "use strict";   
-    
+    "use strict";
+
     if(!configs || !configs.map_div){
         alert('Please provide map_div');
-    }  
+    }
 
     var infoWindows = [];
 
@@ -233,9 +234,9 @@ var GoogleMapWrapperClass = (function(configs){
                 var lat_lng = coordinatesIn[i];
                 if(typeof lat_lng === 'string'){
                     var latlng = lat_lng.split(',');
-                    lat_lng = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+                    lat_lng = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1]));
                 } else if (typeof lat_lng === 'object' && lat_lng.lat && lat_lng.lng){
-                    lat_lng = new google.maps.LatLng(lat_lng.lat, lat_lng.lng); 
+                    lat_lng = new google.maps.LatLng(lat_lng.lat, lat_lng.lng);
                 }
                 coordinates.push(lat_lng);
             }
@@ -251,26 +252,26 @@ var GoogleMapWrapperClass = (function(configs){
         FitBounds:function(coord_1, coord_2){
             if(typeof coord_1 === 'string'){
                 var latlng = coord_1.split(',');
-                coord_1 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+                coord_1 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1]));
             } else if (typeof coord_1 === 'object' && coord_1.lat && coord_1.lng){
-                coord_1 = new google.maps.LatLng(coord_1.lat, coord_1.lng); 
+                coord_1 = new google.maps.LatLng(coord_1.lat, coord_1.lng);
             } else if (coord_1.length === 2){
                 var lat = parseFloat(coord_1[0]);
                 var lng = parseFloat(coord_1[1]);
-                coord_1 = new google.maps.LatLng(lat, lng); 
+                coord_1 = new google.maps.LatLng(lat, lng);
             }
 
             if(typeof coord_2 === 'string'){
                 var latlng = coord_2.split(',');
-                coord_2 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+                coord_2 = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1]));
             } else if (typeof coord_2 === 'object' && coord_2.lat && coord_2.lng){
-                coord_2 = new google.maps.LatLng(coord_2.lat, coord_2.lng); 
+                coord_2 = new google.maps.LatLng(coord_2.lat, coord_2.lng);
             } else if (coord_2.length === 2){
                 var lat = parseFloat(coord_2[0]);
                 var lng = parseFloat(coord_2[1]);
-                coord_2 = new google.maps.LatLng(lat, lng); 
+                coord_2 = new google.maps.LatLng(lat, lng);
             }
-            
+
             var bounds = new google.maps.LatLngBounds();
             bounds.extend(coord_1);
             bounds.extend(coord_2);
@@ -278,29 +279,29 @@ var GoogleMapWrapperClass = (function(configs){
 
         },
         AddPlacemark:function(lat_lng, options, infoWindow){
-            
+
             var title = title || '';
             if(typeof lat_lng === 'string'){
                 var latlng = lat_lng.split(',');
-                lat_lng = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1])); 
+                lat_lng = new google.maps.LatLng(parseFloat(latlng[0]), parseFloat(latlng[1]));
             } else if (typeof lat_lng === 'object' && lat_lng.lat && lat_lng.lng){
-                lat_lng = new google.maps.LatLng(lat_lng.lat, lat_lng.lng); 
+                lat_lng = new google.maps.LatLng(lat_lng.lat, lat_lng.lng);
             } else {
                 //typeof debugErrorHandler === 'function' && debugErrorHandler('');
 
             }
-            
+
             var options = options || {};
             options.position = lat_lng;
             options.map = map;
             if(options.icon && typeof options.icon === 'string'){
                 options.icon = new google.maps.MarkerImage(
                     options.icon,
-                    null, null, null, 
+                    null, null, null,
                     new google.maps.Size(24, 24)
                 );
             }
-            
+
             var marker = new google.maps.Marker(options);
 
             if(infoWindow){
@@ -309,16 +310,16 @@ var GoogleMapWrapperClass = (function(configs){
                 });
 
                 google.maps.event.addListener(marker, 'click', function() {
-                    
+
                     var l=infoWindows.length;
                     for(var i=0; i<l;i++){
                         infoWindows[i].close && infoWindows[i].close();
                     }
                     infoWindows = [];
-                    
+
                     marker.infowindow.open(map, marker);
                     infoWindows.push(marker.infowindow);
-                }); 
+                });
             }
 
             return marker;
@@ -331,7 +332,7 @@ var GoogleMapWrapperClass = (function(configs){
                 var lat_lng = list[i].lat_lng;
                 placemarks.push(this.AddPlacemark(lat_lng, list[i]));
             }
-            
+
             return placemarks;
         },
 
@@ -340,7 +341,7 @@ var GoogleMapWrapperClass = (function(configs){
             var titleDiv = document.createElement('div');
             titleDiv.style.marginTop = '26px';
             titleDiv.style.textAlign = 'center';
-            
+
             var titleText = document.createElement('div');
             titleText.style.color = '#444444';
             titleText.style.fontSize = '18px';
@@ -358,13 +359,13 @@ var GoogleMapWrapperClass = (function(configs){
 
 var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
     "use strict";
-    
+
     $.ajaxSetup({cache: true});
 
     if(!global && window){
         var global = window;
     }
- 
+
     if (typeof google !== 'undefined' && google.maps){//already loaded
         onSuccess();
     } else {
@@ -375,24 +376,24 @@ var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
         .fail(function(jqxhr, settings, exception){
             (typeof onError === 'function') && onError();
         });
-    } 
+    }
 });
 
 var EnvironmentDetector = (function(){
-    
+
     var $this = this;
 
     $this.getScreenType =  function(){
         try{
-            return (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : "Web";    
+            return (navigator.userAgent.match(/iPad/i))  == "iPad" ? "iPad" : (navigator.userAgent.match(/iPhone/i))  == "iPhone" ? "iPhone" : (navigator.userAgent.match(/Android/i)) == "Android" ? "Android" : (navigator.userAgent.match(/BlackBerry/i)) == "BlackBerry" ? "BlackBerry" : "Web";
         } catch(e){}
         return null;
     };
-    
+
     $this.isCordovaApp =  function(){
         return (typeof cordova !== 'undefined' && cordova.plugins) ? true : false;
     };
-    
+
     $this.isWeb  =  function(){
         return !$this.isCordovaApp();
     };
@@ -403,14 +404,14 @@ var EnvironmentDetector = (function(){
     $this.isIOS  =  function(){
         return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'ios';
     };
-    
+
     $this.isAndroid  =  function(){
         return typeof device !== 'undefined' && device.platform && device.platform.toLowerCase() === 'android';
     };
-    
+
     /*platformVersion: (window.device && window.device.version) ? window.device.version : null,
     model: (window.device && window.device.model) ? window.device.model : null,*/
-    
+
     $this.getPlatform = function(){
         return $this.isIOS() ? 'ios' : $this.isAndroid() ? 'android' : $this.isWeb() ? 'web' : '';
     };
@@ -419,14 +420,14 @@ var EnvironmentDetector = (function(){
 });
 
 var LocalSyncFile = (function(filepath, url){
-    
+
     var $this = this;
 
     $this.filePath = filepath;
     $this.url = url;
 
     $this.ReadAsTextFile = function(onSuccess, onError){
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){ 
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem){
             fileSystem.root.getFile(filepath, null, function(fileEntry){
                 fileEntry.file(function(file){
                     var fileReader = new FileReader();
@@ -438,7 +439,7 @@ var LocalSyncFile = (function(filepath, url){
                 }, function(){
                     typeof onError === 'function' && onError();
                 });
-                
+
             }, function(){
                 typeof onError === 'function' && onError();
             });
@@ -480,9 +481,9 @@ var LocalSyncFile = (function(filepath, url){
             }
         }).fail(function() {
             typeof onError === 'function' && onError();
-        });    
+        });
     };
-    
+
 
     return $this;
 });
@@ -494,7 +495,7 @@ var LocalSyncFile = (function(filepath, url){
 var GoogleUniversalAnalyticsWrapper = (function(trackingId, platform){
     var $this = this,
         $analytics;
-        
+
     $this.platform = platform;
 
     if(platform === 'web'){
@@ -502,7 +503,7 @@ var GoogleUniversalAnalyticsWrapper = (function(trackingId, platform){
     } else {
         if(window.analytics){
             $analytics = window.analytics;
-            $analytics.startTrackerWithId(trackingId);   
+            $analytics.startTrackerWithId(trackingId);
         }
     }
 
@@ -517,13 +518,6 @@ var GoogleUniversalAnalyticsWrapper = (function(trackingId, platform){
             $analytics.trackEvent(category, action, label, value);
         }
     };
-    
+
     return $this;
 });
-
-
-
-
-
-
-

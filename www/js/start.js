@@ -1,4 +1,4 @@
-window.APP_VERSION = '1.0';
+window.APP_VERSION = '0.0';
 window.APP_VERSION_CODE = 2;
 
 Parse.initialize('F5PDVVr50MdBrdBTQqp5fuksYRixEIX4GE0gkeK7','rdiBqEdXqKZ2GuTEyvmRsIEc2lanobhTh3rScSDM');
@@ -118,35 +118,35 @@ document.addEventListener("deviceready", function(){
     }
 
     //Check Database version
-    setTimeout(function(){
-        window.CheckDBVersion = function(){
-            if(typeof device !== 'undefined' && typeof cordova !== 'undefined'){//Ensure this is cordova app
-                var latest_db_version = parseInt(ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
-                var current_db_version = parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
-                var download_url = ParseConfig.get('link_JsonDBDownloadURL');
-                if (latest_db_version > current_db_version) {
-                    //Database Update Process
-                    var filepath = 'yangontrains_data.json';
-                    JsonDataFile.Update(function(){
-                        LocalConfig.set('DB_VERSION_CODE', ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
-                        LocalConfig.set('DB_FILEPATH', filepath);
-                        JsonDataFile.ReadAsTextFile(function(data){
-                            JsonDB = new DatasetReaderClass(JSON.parse(data));//immediately update the local data copy
-                            $(document).trigger('show_alert',{title:'', template:'<div class="alert_body">Database successfully updated.</div>'});
-                        },function(){
+    window.CheckDBVersion = function(){
+        if(typeof device !== 'undefined' && typeof cordova !== 'undefined'){//Ensure this is cordova app
+            var latest_db_version = parseInt(ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
+            var current_db_version = parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
+            var download_url = ParseConfig.get('link_JsonDBDownloadURL');
+            if (latest_db_version > current_db_version) {
+                //Database Update Process
+                var filepath = 'yangontrains_data.json';
+                JsonDataFile.Update(function(){
+                    LocalConfig.set('DB_VERSION_CODE', ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
+                    LocalConfig.set('DB_FILEPATH', filepath);
+                    JsonDataFile.ReadAsTextFile(function(data){
+                        JsonDB = new DatasetReaderClass(JSON.parse(data));//immediately update the local data copy
+                        $(document).trigger('show_alert',{title:'', template:'<div class="alert_body">Database successfully updated.</div>'});
+                    },function(){
 
-                        });
-
-                    }, function(){
-                        //$(document).trigger('show_alert',{title:'Database failed to update!', template:'<div class="alert_body">Database failed to update!</div>'});
                     });
-                } else {
-                    //alert('No need to update DB');
-                }
+
+                }, function(){
+                    //$(document).trigger('show_alert',{title:'Database failed to update!', template:'<div class="alert_body">Database failed to update!</div>'});
+                });
+            } else {
+                //alert('No need to update DB');
             }
-        };
+        }
+    };
+    $(document).on('configs_refreshed',function(){//will be only in mobile
         CheckDBVersion();
-    },3000);//wait for parse config to loaded lates db number
+    });
 
     //Google Analytics
     if(window.analytics){
