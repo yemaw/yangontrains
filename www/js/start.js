@@ -1,4 +1,4 @@
-window.APP_VERSION = '0.0';
+window.APP_VERSION = '1.0';
 window.APP_VERSION_CODE = 2;
 
 Parse.initialize('F5PDVVr50MdBrdBTQqp5fuksYRixEIX4GE0gkeK7','rdiBqEdXqKZ2GuTEyvmRsIEc2lanobhTh3rScSDM');
@@ -66,7 +66,7 @@ window.LocalizedText = new LocalizationClass({
 
 window.ENV = new EnvironmentDetector();
 
-window.JsonDB = new DatasetReaderClass(yangontrains_data);
+window.JsonDB = new DatasetReaderClass(ENV.isWeb() ? yangontrains_data : {});
 
 
 function addPlatformSpecificClasses(){

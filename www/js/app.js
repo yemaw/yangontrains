@@ -110,6 +110,17 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         return duration;
     };
 
+    $rootScope.refreshVariables = function(){
+        $rootScope.parseConfig = ParseConfig;
+        $rootScope.localConfig = LocalConfig;
+        $rootScope.localizedText = LocalizedText;
+        $rootScope.app_version = window.APP_VERSION;
+        $rootScope.db_version_code = JsonDB.GetAll('db_version_code');
+        $rootScope.db_release_time = JsonDB.GetAll('db_release_time');
+        $rootScope.current_language = LocalConfig.get('language', 'mm');
+        $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
+    }
+
     $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -134,14 +145,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
 
     $scope.txt_about = ParseConfig.get('txt_About');
 
-    $rootScope.parseConfig = ParseConfig;
-    $rootScope.localConfig = LocalConfig;
-    $rootScope.localizedText = LocalizedText;
-    $rootScope.app_version = window.APP_VERSION;
-    $rootScope.db_version_code = JsonDB.GetAll('db_version_code');
-    $rootScope.db_release_time = JsonDB.GetAll('db_release_time');
-    $rootScope.current_language = LocalConfig.get('language', 'mm');
-    $rootScope.platform = ENV.isWeb() ? 'web' : ENV.isIOS() ? 'ios' : ENV.isAndroid() ? 'android' : null;
+    $rootScope.refreshVariables();
 
     $rootScope.touchStartOnListView = function(){
         $('.searchbox, .from-textbox, .to-textbox').focusout();
@@ -163,7 +167,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     $scope.actionOpenSetting = function(){
 
         GA.trackView('settings');
-
+        $rootScope.refreshVariables(); //refresh db version, db last updated date etc
         $scope.modals.setting.show();
     };
     $scope.actionCloseSetting = function(){
@@ -345,7 +349,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
         $rootScope.$broadcast("current_language_changed");
     };
 
-    setTimeout(function(){
+    setTimeout(function(){//check and notify app update information. one time only on app started.
         if(parseInt(window.APP_VERSION_CODE) < parseInt(ParseConfig.get('APP_LATEST_VERSION_CODE', 1))) {
             $ionicPopup.show({
                 title: LocalizedText('txt_UpdatePopupTitle_'+LocalConfig.get('language', 'mm')),
