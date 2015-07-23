@@ -350,7 +350,7 @@ angular.module('yangontrains', ['ionic', 'myDirectives'])
     };
 
     setTimeout(function(){//check and notify app update information. one time only on app started.
-        if(parseInt(window.APP_VERSION_CODE) < parseInt(ParseConfig.get('APP_LATEST_VERSION_CODE', 1))) {
+        if(parseInt(window.APP_VERSION_CODE) < parseInt(ParseConfig.get('APP_LATEST_VERSION_CODE', 1)) && !ENV.isWeb()) {
             $ionicPopup.show({
                 title: LocalizedText('txt_UpdatePopupTitle_'+LocalConfig.get('language', 'mm')),
                 template: LocalizedText('txt_UpdatePopupDescription_'+LocalConfig.get('language', 'mm')),
