@@ -121,7 +121,7 @@ document.addEventListener("deviceready", function(){
     window.CheckDBVersion = function(){
         if(typeof device !== 'undefined' && typeof cordova !== 'undefined'){//Ensure this is cordova app
             var latest_db_version = parseInt(ParseConfig.get('DB_LATEST_VERSION_CODE', 1));
-            var current_db_version = parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
+            var current_db_version = JsonDB.GetAll('db_version_code');//parseInt(LocalConfig.get('DB_VERSION_CODE', 1));
             var download_url = ParseConfig.get('link_JsonDBDownloadURL');
             if (latest_db_version > current_db_version) {
                 //Database Update Process
@@ -144,7 +144,12 @@ document.addEventListener("deviceready", function(){
             }
         }
     };
-    $(document).on('configs_refreshed',function(){//will be only in mobile
+
+    setTimeout(function(){
+        CheckDBVersion();
+    },10);
+
+    $(document).on('configs_refreshed',function(){//will be check only in mobile
         CheckDBVersion();
     });
 

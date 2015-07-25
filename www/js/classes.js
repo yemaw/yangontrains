@@ -31,7 +31,9 @@ var LocalConfigClass = (function (prefixIn, defaultsIn){
 var ParseConfigWrapperClass = (function (defaultsIn, pullIntervalMilliseconds){
 
     var defaults = defaultsIn || {};
-    Parse.Config.get().then(function(config){}, function(err){});
+    Parse.Config.get().then(function(config){
+        $(document).trigger('configs_refreshed',{});
+    }, function(err){});
     var pullIntervalMilliseconds = pullIntervalMilliseconds || 60 * 1000; //12 * 60 * 60 * 1000
 
     if(typeof parse_refresh_interval !== 'undefined' && parse_refresh_interval !== null){
