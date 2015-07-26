@@ -361,11 +361,18 @@ var GoogleMapWrapperClass = (function(configs){
 
 var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
     "use strict";
+    //if mobile and connection doesn't exist, show some warning
+    if (
+        (typeof navigator !== 'undefined' && navigator.connection && navigator.connection.type && typeof Connection !== 'undefined') &&
+        (navigator.connection.type === Connection.NONE || (global.google !== undefined && global.google.maps))) {
+            $(document).trigger('show_alert',{title:'', template:'<div class="alert_body">No internet connection :(</div>'});
+    }
 
     $.ajaxSetup({cache: true});
+    $.support.cors=true; //must add for android
 
     if(!global && window){
-        var global = window;
+        global = window;
     }
 
     if (typeof google !== 'undefined' && google.maps){//already loaded
@@ -376,7 +383,7 @@ var loadGoogleMapAPI = (function (key, onSuccess, onError, global) {
         });
         $.getScript('https://maps.googleapis.com/maps/api/js?key='+key+'&sensor=true&callback=onGoogleMapsApiLoaded')
         .fail(function(jqxhr, settings, exception){
-            (typeof onError === 'function') && onError();
+            (typeof onError === 'function') && onError(jqxhr, settings, exception);
         });
     }
 });

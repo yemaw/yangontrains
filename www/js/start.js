@@ -1,5 +1,5 @@
 window.APP_VERSION = '1.0';
-window.APP_VERSION_CODE = 2;
+window.APP_VERSION_CODE = 1;
 
 Parse.initialize('F5PDVVr50MdBrdBTQqp5fuksYRixEIX4GE0gkeK7','rdiBqEdXqKZ2GuTEyvmRsIEc2lanobhTh3rScSDM');
 
